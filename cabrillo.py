@@ -1,3 +1,9 @@
+#!/usr/bin/env python3
+"""Cabrillo is a library that parses Cabrillo log files for amateur radio
+contests.
+"""
+import os
+
 # Based on the Cabrillo specification available at
 # https://wwrof.org/cabrillo/cabrillo-specification-v3/
 # All values below should remain upper case.
@@ -47,15 +53,19 @@ VALID_CATEGORIES_MAP = dict(category_assisted=CATEGORY_ASSISTED,
 
 
 class CabrilloParserException(Exception):
-    pass
+    """CabrilloParserException is the catch-all exception for this library."""
 
 
 class InvalidLogException(CabrilloParserException):
-    pass
+    """InvalidLogException occurs if there is an error reading the log
+    file.
+    """
 
 
 class InvalidQSOException(CabrilloParserException):
-    pass
+    """InvalidLogException occurs if there is an error parsing an individual
+    QSO.
+    """
 
 
 class Cabrillo:
@@ -102,7 +112,7 @@ class Cabrillo:
                  category_station=None, category_time=None,
                  category_transmitter=None, category_overlay=None,
                  certificate=None, claimed_score=None, club=None,
-                 created_by="cabrillo (Python)", email=None, location=None,
+                 created_by='cabrillo (Python)', email=None, location=None,
                  name=None, address=None, address_city=None,
                  address_state_province=None, address_postalcode=None,
                  operators=None, offtime=None, soapbox=None, qso=None,
@@ -122,14 +132,6 @@ class Cabrillo:
         Raises:
             InvalidLogException
         """
-        if check_categories:
-            for key, value in VALID_CATEGORIES_MAP.items():
-                attribute = getattr(self, key)
-                if attribute and attribute not in value:
-                    raise InvalidLogException("Got {} for {} but expecting "
-                                              "one of {}.".format(attribute,
-                                                                 key, value))
-
         self.callsign = callsign
         self.version = version
         self.contest = contest
@@ -159,6 +161,62 @@ class Cabrillo:
         self.x_qso = x_qso
         self.x_anything = x_anything
 
+        if not self.qso:
+            self.qso = list()
+
+        if not self.x_qso:
+            self.x_qso = list()
+
+        if check_categories:
+            for attribute, candidates in VALID_CATEGORIES_MAP.items():
+                value = getattr(self, attribute, None)
+                if value and value not in candidates:
+                    raise InvalidLogException(
+                        'Got {} for {} but expecting one of {}.'.format(
+                            value,
+                            attribute, candidates))
+
+    def write_text(self):
+        """write_text generates a Cabrillo log text.
+
+        Arguments:
+            None.
+
+        Returns:
+            str
+        """
+        assert self.version == '3.0'
+
+        lines = list()
+        lines.append('START-OF-LOG: {}'.format(self.version))
+
+        for attribute, keyword in KEYWORD_MAP.items():
+            value = getattr(self, attribute, None)
+            if attribute == 'certificate' and value is not None:
+                # Convert boolean to YES/NO.
+                if value:
+                    lines.append('{}: YES'.format(keyword))
+                else:
+                    lines.append('{}: NO'.format(keyword))
+            elif attribute in ['address', 'soapbox', 'qso', 'x-qso'] and value:
+                # Process multi-line attributes.
+                output_lines = ['{}: {}'.format(keyword, str(x)) for x in
+                                value]
+                lines += output_lines
+            elif attribute in ['operators', 'offtime'] and value:
+
+                # Process attributes delimited by space.
+                lines += ['{}: {}'.format(keyword, ' '.join(value))]
+            elif value and attribute != 'version':
+                lines.append('{}: {}'.format(keyword, value))
+
+        lines.append('END-OF-LOG:')
+
+        return os.linesep.join(lines)
+
+    def __str__(self):
+        return '<Cabrillo for {}>'.format(self.callsign)
+
 
 class QSO:
     """Representation of a single QSO.
@@ -173,10 +231,11 @@ class QSO:
         dx_call: Received callsign.
         dx_rst: Received RST.
         dx_exch: Received exchange. List of each component.
+        t: Transmitter ID for multi-transmitter categories. 0/1.
     """
 
     def __init__(self, freq, mo, date, de_call, de_rst, dx_call,
-                 dx_rst, dx_exch=None, de_exch=None):
+                 dx_rst, t, de_exch=None, dx_exch=None):
         """Construct a QSO object.
 
         Arguments:
@@ -184,7 +243,7 @@ class QSO:
             de_exch and dx_exch are optional lists.
         """
         if mo not in MODES:
-            raise InvalidQSOException("{} is not a valid mode.".format(mo))
+            raise InvalidQSOException('{} is not a valid mode.'.format(mo))
 
         self.freq = freq
         self.mo = mo
@@ -193,5 +252,27 @@ class QSO:
         self.de_rst = de_rst
         self.dx_call = dx_call
         self.dx_rst = dx_rst
-        self.de_exch = de_exch
-        self.dx_exch = dx_exch
+        self.t = t
+        if not de_exch:
+            self.de_exch = list()
+        else:
+            self.de_exch = de_exch
+        if not dx_exch:
+            self.dx_exch = list()
+        else:
+            self.dx_exch = dx_exch
+
+    def __str__(self):
+        return 'QSO: {} {} {} {} {} {} {} {} {} {}'.format(self.freq, self.mo,
+                                                           self.date,
+                                                           self.de_call,
+                                                           self.de_rst,
+                                                           ' '.join(
+                                                               self.de_exch),
+                                                           self.dx_call,
+                                                           self.dx_rst,
+                                                           ' '.join(
+                                                               self.dx_exch),
+                                                           self.t)
+
+
