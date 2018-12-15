@@ -35,10 +35,10 @@ KEYWORD_MAP = dict(version='START-OF-LOG', callsign='CALLSIGN',
                    certificate='CERTIFICATE', claimed_score='CLAIMED-SCORE',
                    club='CLUB', created_by='CREATED_BY', email='EMAIL',
                    location='LOCATION', name='NAME', address='ADDRESS',
-                   address_city='ADDRESS_CITY',
-                   address_state_province='ADDRESS_STATE_PROVINCE',
-                   address_postalcode='ADDRESS_POSTALCODE',
-                   address_country='ADDRESS_COUNTRY', operators='OPERATORS',
+                   address_city='ADDRESS-CITY',
+                   address_state_province='ADDRESS-STATE-PROVINCE',
+                   address_postalcode='ADDRESS-POSTALCODE',
+                   address_country='ADDRESS-COUNTRY', operators='OPERATORS',
                    offtime='OFFTIME', soapbox='SOAPBOX', qso='QSO',
                    x_qso='X-QSO')
 VALID_CATEGORIES_MAP = dict(category_assisted=CATEGORY_ASSISTED,
@@ -77,6 +77,7 @@ class Cabrillo:
           contest: Contest identification.
           category_assisted: One of CATEGORY_ASSISTED.
           category_band: One of CATEGORY_BAND.
+          category_mode: One of CATEGORY_MODE.
           category_operator: One of CATEGORY_OPERATOR.
           category_power: One of CATEGORY-POWER.
           category_station: One of CATEGORY-STATION.
@@ -108,10 +109,11 @@ class Cabrillo:
 
     def __init__(self, callsign, version='3.0', contest=None,
                  category_assisted=None, category_band=None,
-                 category_operator=None, category_power=None,
-                 category_station=None, category_time=None,
-                 category_transmitter=None, category_overlay=None,
-                 certificate=None, claimed_score=None, club=None,
+                 category_mode=None, category_operator=None,
+                 category_power=None, category_station=None,
+                 category_time=None, category_transmitter=None,
+                 category_overlay=None, certificate=None,
+                 claimed_score=None, club=None,
                  created_by='cabrillo (Python)', email=None, location=None,
                  name=None, address=None, address_city=None,
                  address_state_province=None, address_postalcode=None,
@@ -137,6 +139,7 @@ class Cabrillo:
         self.contest = contest
         self.category_assisted = category_assisted
         self.category_band = category_band
+        self.category_mode = category_mode
         self.category_operator = category_operator
         self.category_power = category_power
         self.category_station = category_station
@@ -224,7 +227,7 @@ class QSO:
     Attributes:
         freq: Frequency in str representation.
         mo: Two letter of QSO. See MODES.
-        date: UTC date in yyyy-mm-dd.
+        date: UTC time in datetime.datetime object.
         de_call: Sent callsign.
         de_rst: Sent RST.
         de_exch: Sent exchange. List of each component.
@@ -263,16 +266,14 @@ class QSO:
             self.dx_exch = dx_exch
 
     def __str__(self):
-        return 'QSO: {} {} {} {} {} {} {} {} {} {}'.format(self.freq, self.mo,
-                                                           self.date,
-                                                           self.de_call,
-                                                           self.de_rst,
-                                                           ' '.join(
-                                                               self.de_exch),
-                                                           self.dx_call,
-                                                           self.dx_rst,
-                                                           ' '.join(
-                                                               self.dx_exch),
-                                                           self.t)
-
-
+        line = '{} {} {} {} {} {} {} {} {} {}'
+        time_str = self.date.strftime("%Y-%m-%d %H%M")
+        return line.format(self.freq, self.mo,
+                           time_str,
+                           self.de_call,
+                           self.de_rst,
+                           ' '.join(self.de_exch).strip(),
+                           self.dx_call,
+                           self.dx_rst,
+                           ' '.join(self.dx_exch).strip(),
+                           self.t)
