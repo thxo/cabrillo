@@ -198,7 +198,7 @@ class Cabrillo:
                     lines.append('{}: YES'.format(keyword))
                 else:
                     lines.append('{}: NO'.format(keyword))
-            elif attribute in ['address', 'soapbox', 'qso', 'x-qso'] and value:
+            elif attribute in ['address', 'soapbox', 'qso', 'x_qso'] and value:
                 # Process multi-line attributes.
                 output_lines = ['{}: {}'.format(keyword, str(x)) for x in
                                 value]
