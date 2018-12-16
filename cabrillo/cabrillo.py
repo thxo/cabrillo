@@ -4,68 +4,8 @@ contests.
 """
 import os
 
-# Based on the Cabrillo specification available at
-# https://wwrof.org/cabrillo/cabrillo-specification-v3/
-# All values below should remain upper case.
-CATEGORY_ASSISTED = ['ASSISTED', 'NON-ASSISTED']
-CATEGORY_BAND = ['ALL', '160M', '80M', '40M', '20M', '15M', '10M', '6M', '4M',
-                 '2M', '222', '432', '902', '1.2G', '2.3G', '3.4G', '5.7G',
-                 '10G', '24G', '47G', '75G', '123G', '134G', '241G', 'LIGHT',
-                 'VHF-3-BAND', 'VHF-FM-ONLY']
-CATEGORY_MODE = ['SSB', 'CW', 'RTTY', 'FM', 'MIXED']
-CATEGORY_OPERATOR = ['SINGLE-OP', 'MULTI-OP', 'CHECKLOG']
-CATEGORY_POWER = ['HIGH', 'LOW', 'QRP']
-CATEGORY_STATION = ['FIXED', 'MOBILE', 'PORTABLE', 'ROVER', 'ROVER-LIMITED',
-                    'ROVER-UNLIMITED', 'EXPEDITION', 'HQ', 'SCHOOL']
-CATEGORY_TIME = ['6-HOURS', '12-HOURS', '24-HOURS']
-CATEGORY_TRANSMITTER = ['ONE', 'TWO', 'LIMITED', 'UNLIMITED', 'SWL']
-CATEGORY_OVERLAY = ['CLASSIC', 'ROOKIE', 'TB-WIRES', 'NOVICE-TECH', 'OVER-50']
-MODES = ['CW', 'PH', 'FM', 'RY', 'DG']
-
-KEYWORD_MAP = dict(version='START-OF-LOG', callsign='CALLSIGN',
-                   contest='CONTEST', category_assisted='CATEGORY-ASSISTED',
-                   category_band='CATEGORY-BAND',
-                   category_mode='CATEGORY-MODE',
-                   category_operator='CATEGORY-OPERATOR',
-                   category_power='CATEGORY-POWER',
-                   category_station='CATEGORY-STATION',
-                   category_time='CATEGORY-TIME',
-                   category_transmitter='CATEGORY-TRANSMITTER',
-                   category_overlay='CATEGORY-OVERLAY',
-                   certificate='CERTIFICATE', claimed_score='CLAIMED-SCORE',
-                   club='CLUB', created_by='CREATED_BY', email='EMAIL',
-                   location='LOCATION', name='NAME', address='ADDRESS',
-                   address_city='ADDRESS-CITY',
-                   address_state_province='ADDRESS-STATE-PROVINCE',
-                   address_postalcode='ADDRESS-POSTALCODE',
-                   address_country='ADDRESS-COUNTRY', operators='OPERATORS',
-                   offtime='OFFTIME', soapbox='SOAPBOX', qso='QSO',
-                   x_qso='X-QSO')
-VALID_CATEGORIES_MAP = dict(category_assisted=CATEGORY_ASSISTED,
-                            category_band=CATEGORY_BAND,
-                            category_mode=CATEGORY_MODE,
-                            category_operator=CATEGORY_OPERATOR,
-                            category_power=CATEGORY_POWER,
-                            category_station=CATEGORY_STATION,
-                            category_time=CATEGORY_TIME,
-                            category_transmitter=CATEGORY_TRANSMITTER,
-                            category_overlay=CATEGORY_OVERLAY)
-
-
-class CabrilloParserException(Exception):
-    """CabrilloParserException is the catch-all exception for this library."""
-
-
-class InvalidLogException(CabrilloParserException):
-    """InvalidLogException occurs if there is an error reading the log
-    file.
-    """
-
-
-class InvalidQSOException(CabrilloParserException):
-    """InvalidLogException occurs if there is an error parsing an individual
-    QSO.
-    """
+from cabrillo import data
+from cabrillo.errors import InvalidLogException
 
 
 class Cabrillo:
@@ -171,7 +111,7 @@ class Cabrillo:
             self.x_qso = list()
 
         if check_categories:
-            for attribute, candidates in VALID_CATEGORIES_MAP.items():
+            for attribute, candidates in data.VALID_CATEGORIES_MAP.items():
                 value = getattr(self, attribute, None)
                 if value and value not in candidates:
                     raise InvalidLogException(
@@ -193,7 +133,7 @@ class Cabrillo:
         lines = list()
         lines.append('START-OF-LOG: {}'.format(self.version))
 
-        for attribute, keyword in KEYWORD_MAP.items():
+        for attribute, keyword in data.KEYWORD_MAP.items():
             value = getattr(self, attribute, None)
             if attribute == 'certificate' and value is not None:
                 # Convert boolean to YES/NO.
@@ -221,59 +161,3 @@ class Cabrillo:
         return '<Cabrillo for {}>'.format(self.callsign)
 
 
-class QSO:
-    """Representation of a single QSO.
-
-    Attributes:
-        freq: Frequency in str representation.
-        mo: Two letter of QSO. See MODES.
-        date: UTC time in datetime.datetime object.
-        de_call: Sent callsign.
-        de_rst: Sent RST.
-        de_exch: Sent exchange. List of each component.
-        dx_call: Received callsign.
-        dx_rst: Received RST.
-        dx_exch: Received exchange. List of each component.
-        t: Transmitter ID for multi-transmitter categories. 0/1.
-    """
-
-    def __init__(self, freq, mo, date, de_call, de_rst, dx_call,
-                 dx_rst, t, de_exch=None, dx_exch=None):
-        """Construct a QSO object.
-
-        Arguments:
-            See class attributes for parameters.
-            de_exch and dx_exch are optional lists.
-        """
-        if mo not in MODES:
-            raise InvalidQSOException('{} is not a valid mode.'.format(mo))
-
-        self.freq = freq
-        self.mo = mo
-        self.date = date
-        self.de_call = de_call
-        self.de_rst = de_rst
-        self.dx_call = dx_call
-        self.dx_rst = dx_rst
-        self.t = t
-        if not de_exch:
-            self.de_exch = list()
-        else:
-            self.de_exch = de_exch
-        if not dx_exch:
-            self.dx_exch = list()
-        else:
-            self.dx_exch = dx_exch
-
-    def __str__(self):
-        line = '{} {} {} {} {} {} {} {} {} {}'
-        time_str = self.date.strftime("%Y-%m-%d %H%M")
-        return line.format(self.freq, self.mo,
-                           time_str,
-                           self.de_call,
-                           self.de_rst,
-                           ' '.join(self.de_exch).strip(),
-                           self.dx_call,
-                           self.dx_rst,
-                           ' '.join(self.dx_exch).strip(),
-                           self.t)
