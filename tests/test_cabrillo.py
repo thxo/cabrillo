@@ -39,7 +39,8 @@ def test_all_attributes():
                    address_postalcode='01569', address_country='USA',
                    operators=['K5ZD', 'KX0XXX'], qso=qso, x_qso=qso,
                    soapbox=['Put your comments here.',
-                            'Use multiple lines if needed.'])
+                            'Use multiple lines if needed.'],
+                   X_TEST_1='ignore')
 
     # Test constructor.
     assert str(cab) == '<Cabrillo for AA1ZZZ>'
@@ -93,6 +94,7 @@ def test_all_attributes():
                'QSO: 7006 CW 2009-05-30 0015 AA1ZZZ 599 2 EF8M 599 34',
                'X-QSO: 7005 CW 2009-05-30 0002 AA1ZZZ 599 1 S50A 599 4',
                'X-QSO: 7006 CW 2009-05-30 0015 AA1ZZZ 599 2 EF8M 599 34',
+               'X-TEST-1: ignore',
                'END-OF-LOG:']
     lines = cab.write_text().split(linesep)
     assert len(correct) == len(lines) and sorted(correct) == sorted(lines)
@@ -101,7 +103,7 @@ def test_all_attributes():
 def test_unicode():
     """Test the functionality of the Cabrillo class when there is Unicode text.
     """
-    cab = Cabrillo('VR2TEST',
+    cab = Cabrillo(callsign='VR2TEST',
                    address=['毛澤大道東89號', '鶴咀'], address_city='石澳')
     lines = cab.write_text().split(linesep)
     correct = ['START-OF-LOG: 3.0', 'CALLSIGN: VR2TEST',
@@ -112,22 +114,29 @@ def test_unicode():
 
 def test_yes_no():
     """Test the conversion from boolean to YES/NO."""
-    assert 'CERTIFICATE: YES' in Cabrillo('TEST100TEST',
+    assert 'CERTIFICATE: YES' in Cabrillo(callsign='TEST100TEST',
                                           certificate=True).write_text()
-    assert 'CERTIFICATE: NO' in Cabrillo('TEST100TEST',
-                                          certificate=False).write_text()
+    assert 'CERTIFICATE: NO' in Cabrillo(callsign='TEST100TEST',
+                                         certificate=False).write_text()
 
 
 def test_exceptions():
     """Test exceptions thrown in Cabrillo."""
     # If we do not enable checking, it should construct properly.
-    assert Cabrillo('TEST100TEST', category_power='ITALIAN-QRP',
+    assert Cabrillo(callsign='TEST100TEST', category_power='ITALIAN-QRP',
                     check_categories=False)
 
     for category in VALID_CATEGORIES_MAP.keys():
         with pytest.raises(InvalidLogException) as _:
-            Cabrillo('TEST100TEST', **{category: 'ABSOLUTE-JUNK-DATA'})
+            Cabrillo(callsign='TEST100TEST',
+                     **{category: 'ABSOLUTE-JUNK-DATA'})
 
     # For now, this program only supports Cabrillo v3.
     with pytest.raises(InvalidLogException) as _:
-        Cabrillo('TEST100TEST', version='4.0').write_text()
+        Cabrillo(callsign='TEST100TEST', version='2.0')
+
+    # Check if version changed mid-way.
+    with pytest.raises(InvalidLogException) as _:
+        cab = Cabrillo(callsign='TEST100TEST', version='3.0')
+        cab.version = 2.0
+        cab.write_text()

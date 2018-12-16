@@ -1,6 +1,7 @@
-#!/usr/bin/env python3
 """Contains code pertaining to parsing and holding individual Cabrillo data.
 """
+# pylint: disable=E1101, E0203
+
 import os
 
 from cabrillo import data
@@ -12,7 +13,7 @@ class Cabrillo:
 
     Attributes:
           version: The only supported version is '3.0'.
-          callsign: Call sign of station. Required.
+          callsign: Call sign of station.
           contest: Contest identification.
           category_assisted: One of CATEGORY_ASSISTED.
           category_band: One of CATEGORY_BAND.
@@ -43,30 +44,16 @@ class Cabrillo:
           soapbox: List containing each line of soapbox text at their own entry.
           qso: QSO data containing QSO objects.
           x_qso: Ignored QSO data containing QSO objects.
-          x_anything: A dictionary of intentionally ignored attributes.
+          x_anything: A dict of ignored/unknown attributes.
+
     """
 
-    def __init__(self, callsign, version='3.0', contest=None,
-                 category_assisted=None, category_band=None,
-                 category_mode=None, category_operator=None,
-                 category_power=None, category_station=None,
-                 category_time=None, category_transmitter=None,
-                 category_overlay=None, certificate=None,
-                 claimed_score=None, club=None,
-                 created_by='cabrillo (Python)', email=None, location=None,
-                 name=None, address=None, address_city=None,
-                 address_state_province=None, address_postalcode=None,
-                 address_country=None, operators=None, offtime=None,
-                 soapbox=None, qso=None, x_qso=None, x_anything=None,
-                 check_categories=True):
+    def __init__(self, check_categories=True, **d):
         """Construct a Cabrillo object.
 
-        Please in no way rely on the order of the fields. Use named
-        parameters only.
+        Use named arguments only.
 
         Attributes:
-            callsign: Callsign of station submitting the log. This is the
-            only required field.
             check_categories: Check if categories given are in the Cabrillo
             specification.
             See class attributes for other parameters.
@@ -74,36 +61,18 @@ class Cabrillo:
         Raises:
             InvalidLogException
         """
-        self.callsign = callsign
-        self.version = version
-        self.contest = contest
-        self.category_assisted = category_assisted
-        self.category_band = category_band
-        self.category_mode = category_mode
-        self.category_operator = category_operator
-        self.category_power = category_power
-        self.category_station = category_station
-        self.category_time = category_time
-        self.category_overlay = category_overlay
-        self.category_transmitter = category_transmitter
-        self.certificate = certificate
-        self.claimed_score = claimed_score
-        self.club = club
-        self.created_by = created_by
-        self.email = email
-        self.location = location
-        self.name = name
-        self.address = address
-        self.address_city = address_city
-        self.address_state_province = address_state_province
-        self.address_postalcode = address_postalcode
-        self.address_country = address_country
-        self.operators = operators
-        self.offtime = offtime
-        self.soapbox = soapbox
-        self.qso = qso
-        self.x_qso = x_qso
-        self.x_anything = x_anything
+        d.setdefault('version', '3.0')
+        d.setdefault('created_by', 'cabrillo (Python)')
+        for key in data.KEYWORD_MAP:
+            setattr(self, key, d.setdefault(key, None))
+
+            # Remove known key for unknown ones to be stored later.
+            del d[key]
+        self.x_anything = d
+
+        if self.version != '3.0':
+            raise InvalidLogException("Only Cabrillo v3 supported, "
+                                      "got {}".format(self.version))
 
         if not self.qso:
             self.qso = list()
@@ -127,7 +96,8 @@ class Cabrillo:
             None.
 
         Returns:
-            str
+            str: Cabrillo log file text. `_` in Attribute
+              names are automatically replaced to `-` upon text output.
 
         Raises:
             InvalidLogException when target Cabrillo version is not 3.0.
@@ -138,28 +108,34 @@ class Cabrillo:
         lines = list()
         lines.append('START-OF-LOG: {}'.format(self.version))
 
+        # Output known attributes.
         for attribute, keyword in data.KEYWORD_MAP.items():
             value = getattr(self, attribute, None)
-            if attribute == 'certificate' and value is not None:
-                # Convert boolean to YES/NO.
-                if value:
-                    lines.append('{}: YES'.format(keyword))
-                else:
-                    lines.append('{}: NO'.format(keyword))
-            elif attribute in ['address', 'soapbox', 'qso', 'x_qso'] and value:
-                # Process multi-line attributes.
-                output_lines = ['{}: {}'.format(keyword, str(x)) for x in
-                                value]
-                lines += output_lines
-            elif attribute == 'operators' and value:
-                # Process attributes delimited by space.
-                lines.append('{}: {}'.format(keyword, ' '.join(value)))
-            elif attribute == 'offtime' and value:
-                # Process offtime dates.
-                lines.append('{}: {}'.format(keyword, ' '.join(
-                    [x.strftime("%Y-%m-%d %H%M") for x in value])))
-            elif value and attribute != 'version':
-                lines.append('{}: {}'.format(keyword, value))
+            if value is not None:
+                if attribute == 'certificate':
+                    # Convert boolean to YES/NO.
+                    if value:
+                        lines.append('{}: YES'.format(keyword))
+                    else:
+                        lines.append('{}: NO'.format(keyword))
+                elif attribute in ['address', 'soapbox', 'qso', 'x_qso']:
+                    # Process multi-line attributes.
+                    output_lines = ['{}: {}'.format(keyword, str(x)) for x in
+                                    value]
+                    lines += output_lines
+                elif attribute == 'operators':
+                    # Process attributes delimited by space.
+                    lines.append('{}: {}'.format(keyword, ' '.join(value)))
+                elif attribute == 'offtime':
+                    # Process offtime dates.
+                    lines.append('{}: {}'.format(keyword, ' '.join(
+                        [x.strftime("%Y-%m-%d %H%M") for x in value])))
+                elif value and attribute != 'version':
+                    lines.append('{}: {}'.format(keyword, value))
+
+        # Output ignored attributes.
+        for attribute, keyword in self.x_anything.items():
+            lines.append('{}: {}'.format(attribute.replace('_', '-'), keyword))
 
         lines.append('END-OF-LOG:')
 
@@ -167,4 +143,3 @@ class Cabrillo:
 
     def __str__(self):
         return '<Cabrillo for {}>'.format(self.callsign)
-
