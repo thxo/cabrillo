@@ -56,8 +56,9 @@ class Cabrillo:
                  created_by='cabrillo (Python)', email=None, location=None,
                  name=None, address=None, address_city=None,
                  address_state_province=None, address_postalcode=None,
-                 operators=None, offtime=None, soapbox=None, qso=None,
-                 x_qso=None, x_anything=None, check_categories=True):
+                 address_country=None, operators=None, offtime=None,
+                 soapbox=None, qso=None, x_qso=None, x_anything=None,
+                 check_categories=True):
         """Construct a Cabrillo object.
 
         Please in no way rely on the order of the fields. Use named
@@ -96,6 +97,7 @@ class Cabrillo:
         self.address_city = address_city
         self.address_state_province = address_state_province
         self.address_postalcode = address_postalcode
+        self.address_country = address_country
         self.operators = operators
         self.offtime = offtime
         self.soapbox = soapbox
