@@ -163,3 +163,4 @@ class Cabrillo:
 
     def __str__(self):
         return '<Cabrillo for {}>'.format(self.callsign)
+

@@ -1,11 +1,14 @@
 """Test the QSO class."""
 from datetime import datetime
 
+import pytest
+
 from cabrillo import QSO
+from cabrillo.errors import InvalidQSOException
 
 
-def test_qso_yarc():
-    """Test the QSO class with YARC QSO Party exchange."""
+def test_yarc():
+    """Test the QSO class with YARC QSO Party exchanges."""
     qso = QSO('14313', 'PH',
               datetime.strptime('May 30 2018 10:10PM', '%b %d %Y %I:%M%p'),
               'KX0XXX', '59', 'KX9XXX', '44',
@@ -25,7 +28,7 @@ def test_qso_yarc():
                        '20 IN'
 
 
-def test_qso_with_xmtr():
+def test_with_xmtr():
     """Test the QSO class with a transmitter designation."""
     qso = QSO('241G', 'PH',
               datetime.strptime('May 30 2018 10:10PM', '%b %d %Y %I:%M%p'),
@@ -44,3 +47,18 @@ def test_qso_with_xmtr():
     assert qso.t == 1
     assert str(qso) == '241G PH 2018-05-30 2210 KX0XXX 59 CO KX9XXX 44 ' \
                        'IL 1'
+
+
+def test_invalid_mode():
+    """Test the QSO class with invalid modes."""
+    with pytest.raises(InvalidQSOException) as _:
+        QSO('LIGHT', 'MCW', datetime.now(), 'KX0XXX', '59',
+            'KX9XXX', '59')
+
+
+def test_automatic_list():
+    """Test automatic creation of lists for exchanges."""
+    qso = QSO('LIGHT', 'CW', datetime.now(), 'KX0XXX', '59',
+              'KX9XXX', '59')
+    assert qso.de_exch == []
+    assert qso.dx_exch == []

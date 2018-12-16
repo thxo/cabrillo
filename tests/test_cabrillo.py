@@ -3,7 +3,11 @@
 from datetime import datetime
 from os import linesep
 
+import pytest
+
 from cabrillo import Cabrillo, QSO
+from cabrillo.data import VALID_CATEGORIES_MAP
+from cabrillo.errors import InvalidLogException
 
 
 def test_all_attributes():
@@ -104,3 +108,22 @@ def test_unicode():
                'ADDRESS: 毛澤大道東89號', 'ADDRESS: 鶴咀', 'ADDRESS-CITY: 石澳',
                'CREATED-BY: cabrillo (Python)', 'END-OF-LOG:']
     assert len(correct) == len(lines) and sorted(correct) == sorted(lines)
+
+
+def test_yes_no():
+    """Test the conversion from boolean to YES/NO."""
+    assert 'CERTIFICATE: YES' in Cabrillo('TEST100TEST',
+                                          certificate=True).write_text()
+    assert 'CERTIFICATE: NO' in Cabrillo('TEST100TEST',
+                                          certificate=False).write_text()
+
+
+def test_exceptions():
+    """Test exceptions thrown in Cabrillo."""
+    # If we do not enable checking, it should construct properly.
+    assert Cabrillo('TEST100TEST', category_power='ITALIAN-QRP',
+                    check_categories=False)
+
+    for category in VALID_CATEGORIES_MAP.keys():
+        with pytest.raises(InvalidLogException) as _:
+            Cabrillo('TEST100TEST', **{category: 'ABSOLUTE-JUNK-DATA'})
