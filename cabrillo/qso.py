@@ -12,16 +12,14 @@ class QSO:
         mo: Two letter of QSO. See MODES.
         date: UTC time in datetime.datetime object.
         de_call: Sent callsign.
-        de_rst: Sent RST.
-        de_exch: Sent exchange. List of each component.
+        de_exch: Sent exchange incl. RST. List of each component.
         dx_call: Received callsign.
-        dx_rst: Received RST.
-        dx_exch: Received exchange. List of each component.
-        t: Transmitter ID for multi-transmitter categories. 0/1.
+        dx_exch: Received exchange incl. RST. List of each component.
+        t: Transmitter ID for multi-transmitter categories in int. 0/1.
     """
 
-    def __init__(self, freq, mo, date, de_call, de_rst, dx_call,
-                 dx_rst, de_exch=None, dx_exch=None, t=None):
+    def __init__(self, freq, mo, date, de_call, dx_call, de_exch=None,
+                 dx_exch=None, t=None):
         """Construct a QSO object.
 
         Arguments:
@@ -35,9 +33,7 @@ class QSO:
         self.mo = mo
         self.date = date
         self.de_call = de_call
-        self.de_rst = de_rst
         self.dx_call = dx_call
-        self.dx_rst = dx_rst
         self.t = t
 
         if not de_exch:
@@ -51,7 +47,7 @@ class QSO:
             self.dx_exch = dx_exch
 
     def __str__(self):
-        line = '{} {} {} {} {} {} {} {} {} {}'
+        line = '{} {} {} {} {} {} {} {}'
         time_str = self.date.strftime("%Y-%m-%d %H%M")
         if self.t is None:
             t_text = ''
@@ -61,9 +57,7 @@ class QSO:
         return line.format(self.freq, self.mo,
                            time_str,
                            self.de_call,
-                           self.de_rst,
                            ' '.join(self.de_exch).strip(),
                            self.dx_call,
-                           self.dx_rst,
                            ' '.join(self.dx_exch).strip(),
                            t_text).strip()

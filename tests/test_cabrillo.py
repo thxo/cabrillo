@@ -18,11 +18,11 @@ def test_all_attributes():
                datetime.strptime('May 30 2009 12:05AM', '%b %d %Y %I:%M%p')]
     qso = [QSO('7005', 'CW',
                datetime.strptime('May 30 2009 12:02AM', '%b %d %Y %I:%M%p'),
-               'AA1ZZZ', '599', 'S50A', '599', de_exch=['1'], dx_exch=['4'],
+               'AA1ZZZ', 'S50A', de_exch=['599', '1'], dx_exch=['599', '4'],
                t=None),
            QSO('7006', 'CW',
                datetime.strptime('May 30 2009 12:15AM', '%b %d %Y %I:%M%p'),
-               'AA1ZZZ', '599', 'EF8M', '599', de_exch=['2'], dx_exch=['34'],
+               'AA1ZZZ', 'EF8M', de_exch=['599', '2'], dx_exch=['599', '34'],
                t=None)
            ]
     cab = Cabrillo(callsign='AA1ZZZ', contest='CQ-WPX-CW',

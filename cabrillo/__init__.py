@@ -1,4 +1,4 @@
-"""Cabrillo is a library that parses Cabrillo log files for amateur radio
+"""cabrillo is a library that parses Cabrillo log files for amateur radio
 contests.
 """
 
