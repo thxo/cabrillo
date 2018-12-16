@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""Cabrillo is a library that parses Cabrillo log files for amateur radio
-contests.
+"""Contains code pertaining to parsing and holding individual Cabrillo data.
 """
 import os
 
