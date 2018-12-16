@@ -1,7 +1,6 @@
 """Test the Cabrillo class."""
 
 from datetime import datetime
-from os import linesep
 
 import pytest
 
@@ -96,7 +95,7 @@ def test_all_attributes():
                'X-QSO: 7006 CW 2009-05-30 0015 AA1ZZZ 599 2 EF8M 599 34',
                'X-TEST-1: ignore',
                'END-OF-LOG:']
-    lines = cab.write_text().split(linesep)
+    lines = cab.write_text().split('\n')
     assert sorted(correct) == sorted(lines)
 
 
@@ -105,7 +104,7 @@ def test_unicode():
     """
     cab = Cabrillo(callsign='VR2TEST',
                    address=['毛澤大道東89號', '鶴咀'], address_city='石澳')
-    lines = cab.write_text().split(linesep)
+    lines = cab.write_text().split('\n')
     correct = ['START-OF-LOG: 3.0', 'CALLSIGN: VR2TEST',
                'ADDRESS: 毛澤大道東89號', 'ADDRESS: 鶴咀', 'ADDRESS-CITY: 石澳',
                'CREATED-BY: cabrillo (Python)', 'END-OF-LOG:']

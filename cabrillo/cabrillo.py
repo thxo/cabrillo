@@ -1,9 +1,6 @@
 """Contains code pertaining to parsing and holding individual Cabrillo data.
 """
 # pylint: disable=E1101, E0203
-
-import os
-
 from cabrillo import data
 from cabrillo.errors import InvalidLogException
 
@@ -137,7 +134,7 @@ class Cabrillo:
 
         lines.append('END-OF-LOG:')
 
-        return os.linesep.join(lines)
+        return '\n'.join(lines)
 
     def __str__(self):
         return '<Cabrillo for {}>'.format(self.callsign)

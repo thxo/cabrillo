@@ -1,5 +1,4 @@
 """Contains utilities to parse a Cabrillo file."""
-import os
 from datetime import datetime
 from cabrillo import QSO, Cabrillo
 
@@ -73,9 +72,9 @@ def parse_log_text(text, ignore_unknown_key=False, check_categories=True):
     results = dict()
     results['x_anything'] = dict()
 
-    for line in text.split(os.linesep):
+    for line in text.split('\n'):
         try:
-            key, value = [x.strip() for x in line.split(':')]
+            key, value = [x.replace('\r', '').strip() for x in line.split(':')]
         except ValueError:
             raise InvalidLogException('Line not delimited by `:`, '
                                       'got {}.'.format(line))
