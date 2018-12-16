@@ -127,3 +127,7 @@ def test_exceptions():
     for category in VALID_CATEGORIES_MAP.keys():
         with pytest.raises(InvalidLogException) as _:
             Cabrillo('TEST100TEST', **{category: 'ABSOLUTE-JUNK-DATA'})
+
+    # For now, this program only supports Cabrillo v3.
+    with pytest.raises(InvalidLogException) as _:
+        Cabrillo('TEST100TEST', version='4.0').write_text()

@@ -128,8 +128,12 @@ class Cabrillo:
 
         Returns:
             str
+
+        Raises:
+            InvalidLogException when target Cabrillo version is not 3.0.
         """
-        assert self.version == '3.0'
+        if self.version != '3.0':
+            raise InvalidLogException("Only Cabrillo v3 supported.")
 
         lines = list()
         lines.append('START-OF-LOG: {}'.format(self.version))
