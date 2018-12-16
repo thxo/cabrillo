@@ -1,6 +1,5 @@
 atomicwrites==1.2.1
 attrs==18.2.0
-cabrillo==0.0.1
 coverage==4.5.2
 more-itertools==4.3.0
 pluggy==0.8.0
