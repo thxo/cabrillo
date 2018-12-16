@@ -4,5 +4,8 @@ contests.
 
 from cabrillo.qso import QSO
 from cabrillo.cabrillo import Cabrillo
+from cabrillo.errors import CabrilloParserException, InvalidLogException, \
+    InvalidQSOException
 
-__all__ = [QSO, Cabrillo]
+__all__ = [QSO, Cabrillo, CabrilloParserException, InvalidLogException,
+           InvalidQSOException]
