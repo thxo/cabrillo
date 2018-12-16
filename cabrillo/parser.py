@@ -1,8 +1,10 @@
 """Contains utilities to parse a Cabrillo file."""
+import os
 from datetime import datetime
+from cabrillo import QSO, Cabrillo
 
-from cabrillo import QSO
-from cabrillo.errors import InvalidQSOException
+from cabrillo.errors import InvalidQSOException, InvalidLogException
+from cabrillo.data import KEYWORD_MAP
 
 
 def parse_qso(text):
@@ -45,3 +47,79 @@ def parse_qso(text):
                dx_call=components[int(3 + num_exchanged / 2 + 1)],
                dx_exch=components[int(3 + num_exchanged / 2 + 2):
                                   int(3 + num_exchanged + 1)], t=transmitter)
+
+
+def parse_log_text(text, ignore_unknown_key=False, check_categories=True):
+    """Parse a Cabrillo log in text form.
+
+    Attributes in cabrillo.data.KEYWORD_MAP will be parsed accordingly. X-
+    attributes will be sorted into the x_anything attribute of the Cabrillo
+    object.
+
+    Arguments:
+        text: str of log
+        check_categories: Check if categories, if given, exist in the
+            Cabrillo specification.
+        ignore_unknown_key: Boolean denoting whether if unknown and non X-
+            attributes should be ignored if found in long. Defaults to False.
+
+    Returns:
+        cabrillo.Cabrillo
+
+    Raises:
+        InvalidQSOException, InvalidLogException
+    """
+    inverse_keywords = {v: k for k, v in KEYWORD_MAP.items()}
+    results = dict()
+    results['x_anything'] = dict()
+
+    for line in text.split(os.linesep):
+        try:
+            key, value = [x.strip() for x in line.split(':')]
+        except ValueError:
+            raise InvalidLogException('Line not delimited by `:`, '
+                                      'got {}.'.format(line))
+
+        if key == 'END-OF-LOG':
+            break
+        elif key == 'CLAIMED-SCORE':
+            results[inverse_keywords[key]] = int(value)
+        elif key == 'QSO':
+            results.setdefault(inverse_keywords[key], list()).append(
+                parse_qso(value))
+        elif key == 'OPERATORS':
+            results[inverse_keywords[key]] = value.replace(',', ' ').split()
+        elif key in ['ADDRESS', 'SOAPBOX']:
+            results.setdefault(inverse_keywords[key], list()).append(value)
+        elif key in inverse_keywords.keys():
+            results[inverse_keywords[key]] = value
+        elif key.startswith('X-'):
+            results['x_anything'].set(key, value)
+        elif not ignore_unknown_key:
+            raise InvalidLogException("Unknown key {} read.".format(key))
+
+    return Cabrillo(check_categories=check_categories, **results)
+
+
+def parse_log_file(filename, ignore_unknown_key=False, check_categories=True):
+    """Parse a Cabrillo log file.
+
+        Attributes in cabrillo.data.KEYWORD_MAP will be parsed accordingly. X-
+        attributes will be sorted into the x_anything attribute of the Cabrillo
+        object.
+
+        Arguments:
+            filename: filename of the target log file.
+            check_categories: Check if categories, if given, exist in the
+                Cabrillo specification.
+            ignore_unknown_key: Boolean denoting whether if unknown and non X-
+                attributes should be ignored if found in long. Defaults to False.
+
+        Returns:
+            cabrillo.Cabrillo
+
+        Raises:
+            InvalidQSOException, InvalidLogException
+    """
+    with open(filename, 'r') as f:
+        return parse_log_text(f.read(), ignore_unknown_key, check_categories)

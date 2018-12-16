@@ -40,7 +40,7 @@ def test_all_attributes():
                    operators=['K5ZD', 'KX0XXX'], qso=qso, x_qso=qso,
                    soapbox=['Put your comments here.',
                             'Use multiple lines if needed.'],
-                   X_TEST_1='ignore')
+                   x_anything={'X-TEST-1': 'ignore'})
 
     # Test constructor.
     assert str(cab) == '<Cabrillo for AA1ZZZ>'
@@ -97,7 +97,7 @@ def test_all_attributes():
                'X-TEST-1: ignore',
                'END-OF-LOG:']
     lines = cab.write_text().split(linesep)
-    assert len(correct) == len(lines) and sorted(correct) == sorted(lines)
+    assert sorted(correct) == sorted(lines)
 
 
 def test_unicode():

@@ -54,8 +54,8 @@ class Cabrillo:
         Use named arguments only.
 
         Attributes:
-            check_categories: Check if categories given are in the Cabrillo
-            specification.
+            check_categories: Check if categories, if given, exist in the
+            Cabrillo specification.
             See class attributes for other parameters.
 
         Raises:
@@ -66,9 +66,7 @@ class Cabrillo:
         for key in data.KEYWORD_MAP:
             setattr(self, key, d.setdefault(key, None))
 
-            # Remove known key for unknown ones to be stored later.
-            del d[key]
-        self.x_anything = d
+        self.x_anything = d.setdefault('x_anything', dict())
 
         if self.version != '3.0':
             raise InvalidLogException("Only Cabrillo v3 supported, "
