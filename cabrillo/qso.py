@@ -21,7 +21,7 @@ class QSO:
     """
 
     def __init__(self, freq, mo, date, de_call, de_rst, dx_call,
-                 dx_rst, t, de_exch=None, dx_exch=None):
+                 dx_rst, de_exch=None, dx_exch=None, t=None):
         """Construct a QSO object.
 
         Arguments:
@@ -39,10 +39,12 @@ class QSO:
         self.dx_call = dx_call
         self.dx_rst = dx_rst
         self.t = t
+
         if not de_exch:
             self.de_exch = list()
         else:
             self.de_exch = de_exch
+
         if not dx_exch:
             self.dx_exch = list()
         else:
@@ -51,6 +53,11 @@ class QSO:
     def __str__(self):
         line = '{} {} {} {} {} {} {} {} {} {}'
         time_str = self.date.strftime("%Y-%m-%d %H%M")
+        if self.t is None:
+            t_text = ''
+        else:
+            t_text = self.t
+
         return line.format(self.freq, self.mo,
                            time_str,
                            self.de_call,
@@ -59,4 +66,4 @@ class QSO:
                            self.dx_call,
                            self.dx_rst,
                            ' '.join(self.dx_exch).strip(),
-                           self.t)
+                           t_text).strip()

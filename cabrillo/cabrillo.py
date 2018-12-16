@@ -147,10 +147,13 @@ class Cabrillo:
                 output_lines = ['{}: {}'.format(keyword, str(x)) for x in
                                 value]
                 lines += output_lines
-            elif attribute in ['operators', 'offtime'] and value:
-
+            elif attribute == 'operators' and value:
                 # Process attributes delimited by space.
-                lines += ['{}: {}'.format(keyword, ' '.join(value))]
+                lines.append('{}: {}'.format(keyword, ' '.join(value)))
+            elif attribute == 'offtime' and value:
+                # Process offtime dates.
+                lines.append('{}: {}'.format(keyword, ' '.join(
+                    [x.strftime("%Y-%m-%d %H%M") for x in value])))
             elif value and attribute != 'version':
                 lines.append('{}: {}'.format(keyword, value))
 
@@ -160,5 +163,3 @@ class Cabrillo:
 
     def __str__(self):
         return '<Cabrillo for {}>'.format(self.callsign)
-
-
