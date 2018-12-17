@@ -60,7 +60,9 @@ def parse_log_text(text, ignore_unknown_key=False, check_categories=True):
         check_categories: Check if categories, if given, exist in the
             Cabrillo specification.
         ignore_unknown_key: Boolean denoting whether if unknown and non X-
-            attributes should be ignored if found in long. Defaults to False.
+            attributes should be ignored if found in long. Otherwise,
+            an InvalidLogException will be raised. Defaults to False (
+            enforces valid keyword).
 
     Returns:
         cabrillo.Cabrillo
@@ -83,7 +85,9 @@ def parse_log_text(text, ignore_unknown_key=False, check_categories=True):
             break
         elif key == 'CLAIMED-SCORE':
             results[inverse_keywords[key]] = int(value)
-        elif key == 'QSO':
+        elif key == 'CERTIFICATE':
+            results[inverse_keywords[key]] = value == 'YES'
+        elif key in ['QSO', 'X-QSO']:
             results.setdefault(inverse_keywords[key], list()).append(
                 parse_qso(value))
         elif key == 'OPERATORS':
@@ -93,7 +97,7 @@ def parse_log_text(text, ignore_unknown_key=False, check_categories=True):
         elif key in inverse_keywords.keys():
             results[inverse_keywords[key]] = value
         elif key.startswith('X-'):
-            results['x_anything'].set(key, value)
+            results['x_anything'][key] = value
         elif not ignore_unknown_key:
             raise InvalidLogException("Unknown key {} read.".format(key))
 

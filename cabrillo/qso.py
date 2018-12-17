@@ -61,3 +61,10 @@ class QSO:
                            self.dx_call,
                            ' '.join(self.dx_exch).strip(),
                            t_text).strip()
+
+    def __eq__(self, other):
+        """Define equal QSO."""
+        return self.freq == other.freq and self.mo == other.mo and self.date \
+               == other.date and self.de_call == other.de_call and \
+               self.dx_call == other.dx_call and self.de_exch == \
+               other.de_exch and self.dx_exch == other.dx_exch

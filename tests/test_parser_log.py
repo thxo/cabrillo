@@ -1,6 +1,9 @@
 """Test the parsing of Cabrillo logs."""
+from datetime import datetime
+
 import pytest
 
+from cabrillo import QSO
 from cabrillo.errors import InvalidLogException
 from cabrillo.parser import parse_log_file, parse_log_text
 
@@ -39,7 +42,39 @@ def test_parse_cqwpx():
         out_lines) == sorted(correct_lines)
 
 
-def test_parse_cqwpx():
+def test_parse_yarc():
+    """Test a log file from the YARC QSO Party."""
+    cab = parse_log_file('tests/YARC.log')
+    assert cab.certificate is True
+    assert cab.x_anything.get('X-BUS-ROUTE', None) == '372'
+
+    qso = QSO('14200', 'PH',
+              datetime.strptime('Dec 01 2018 2:20PM', '%b %d %Y %I:%M%p'),
+              'W200YARC', 'K4NYX', de_exch=['19', 'NY'], dx_exch=['045', 'FL'],
+              t=None)
+    x_qso = QSO('7127', 'PH',
+                datetime.strptime('Dec 01 2018 9:11PM', '%b %d %Y %I:%M%p'),
+                'W200YARC', 'W9JWC', de_exch=['19', 'NY'],
+                dx_exch=['021', 'IL'],
+                t=None)
+
+    assert cab.qso[0] == qso
+    assert cab.x_qso[0] == x_qso
+
+
+def test_parse_unknown_keyword():
+    """Test a log file with a junk keyword."""
+    """Test a badly delimited log."""
+    bad_text = 'START-OF-LOG: 3.0\nDOGS-SHOULD-VOTE: YES'
+
+    with pytest.raises(InvalidLogException) as _:
+        parse_log_text(bad_text)
+
+    # When ignored is toggled, should not complain.
+    assert parse_log_text(bad_text, ignore_unknown_key=True)
+
+
+def test_parse_bad():
     """Test a badly delimited log."""
     bad_text = 'START-OF-LOG: 3.0\nblah'
 
