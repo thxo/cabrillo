@@ -64,7 +64,6 @@ def test_parse_yarc():
 
 def test_parse_unknown_keyword():
     """Test a log file with a junk keyword."""
-    """Test a badly delimited log."""
     bad_text = 'START-OF-LOG: 3.0\nDOGS-SHOULD-VOTE: YES'
 
     with pytest.raises(InvalidLogException) as _:
