@@ -12,7 +12,7 @@ setuptools.setup(
                 "contest logs.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/wubcrow/cabrillo",
+    url="https://github.com/thxo/cabrillo",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
