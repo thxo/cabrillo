@@ -79,3 +79,14 @@ def test_parse_bad():
 
     with pytest.raises(InvalidLogException) as _:
         parse_log_text(bad_text)
+
+
+def test_parse_bad_claimed_score():
+    """Test a badly formatted log with claim score that has unwanted number
+    formatting.
+    """
+    bad_text = 'START-OF-LOG: 3.0\nCLAIMED-SCORE: 12,345,678'
+
+
+    with pytest.raises(InvalidLogException) as _:
+        parse_log_text(bad_text)
