@@ -87,10 +87,11 @@ def parse_log_text(text, ignore_unknown_key=False, check_categories=True):
             try:
                 results[inverse_keywords[key]] = int(value)
             except ValueError:
-                raise InvalidLogException('Improperly formatted claimed'
-                                          'score {}. Per specification a log'
-                                          'must not have any number'
-                                          'formatting, like ",".')
+                raise InvalidLogException('Improperly formatted claimed '
+                                          'score "{}". Per specification the'
+                                          ' score, if given, must be an '
+                                          'integer without any formatting, '
+                                          'like "12345678".'.format(value))
         elif key == 'CERTIFICATE':
             results[inverse_keywords[key]] = value == 'YES'
         elif key in ['QSO', 'X-QSO']:

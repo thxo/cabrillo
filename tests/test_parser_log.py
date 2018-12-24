@@ -87,6 +87,5 @@ def test_parse_bad_claimed_score():
     """
     bad_text = 'START-OF-LOG: 3.0\nCLAIMED-SCORE: 12,345,678'
 
-
-    with pytest.raises(InvalidLogException) as _:
+    with pytest.raises(ValueError) as _:
         parse_log_text(bad_text)
