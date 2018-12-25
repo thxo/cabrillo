@@ -3,6 +3,7 @@ cabrillo ![Build Status](https://travis-ci.com/thxo/cabrillo.svg?branch=master)
 A Python library to parse Cabrillo-format amateur radio contest logs. 
 
 # Getting Started
+## Basic Parsing
 ```python
 >>> from cabrillo.parser import parse_log_file
 >>> cab = parse_log_file('tests/CQWPX.log')
@@ -12,6 +13,23 @@ A Python library to parse Cabrillo-format amateur radio contest logs.
 [<cabrillo.qso.QSO object at 0x10cb09f28>, <cabrillo.qso.QSO object at 0x10cbc8860>]
 >>> cab.write_text()
 'START-OF-LOG: 3.0\nCALLSIGN: AA1ZZZ\nCONTEST: CQ-WPX-CW\n[...snip...]END-OF-LOG:'
+```
+## Matching Two QSOs in Contest Scoring
+```python
+>>> # We start off with a pair with same data.
+>>> from cabrillo import QSO
+>>> from datetime import datetime
+>>> qso1 = QSO('14313', 'PH', datetime.strptime('May 30 2018 10:15PM', '%b %d %Y %I:%M%p'), 'KX0XXX', 'KX9XXX', de_exch=['59', '10', 'CO'], dx_exch=['44', '20', 'IN'], t=None)
+>>> qso2 = QSO('14313', 'PH', datetime.strptime('May 30 2018 10:10PM', '%b %d %Y %I:%M%p'), 'KX9XXX', 'KX0XXX', de_exch=['44', '20', 'IN'], dx_exch=['59', '10', 'CO'], t=None)
+>>> qso1.match_against(qso2)
+True
+>>> qso1.freq = '14000'  # Same band, still will match.
+>>> qso1.match_against(qso2)
+True
+>>> qso1.match_against(qso2, max_time_delta=1)  # Make time checking less lenient.
+False
+>>> # All flags.
+>>> qso1.match_against(qso2, max_time_delta=30, check_exch=True, check_band=True))
 ```
 
 # Attributes
