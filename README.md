@@ -16,7 +16,7 @@ A Python library to parse Cabrillo-format amateur radio contest logs.
 ```
 ## Matching Two QSOs in Contest Scoring
 ```python
->>> # We start off with a pair with same data.
+>>> # We start off with a pair with complementary data.
 >>> from cabrillo import QSO
 >>> from datetime import datetime
 >>> qso1 = QSO('14313', 'PH', datetime.strptime('May 30 2018 10:15PM', '%b %d %Y %I:%M%p'), 'KX0XXX', 'KX9XXX', de_exch=['59', '10', 'CO'], dx_exch=['44', '20', 'IN'], t=None)
@@ -29,7 +29,7 @@ True
 >>> qso1.match_against(qso2, max_time_delta=1)  # Make time checking less lenient.
 False
 >>> # All flags.
->>> qso1.match_against(qso2, max_time_delta=30, check_exch=True, check_band=True))
+>>> qso1.match_against(qso2, max_time_delta=30, check_exch=True, check_band=True)
 ```
 
 # Attributes
