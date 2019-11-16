@@ -3,6 +3,8 @@ from datetime import datetime
 
 import pytest
 
+import path_helper
+
 from cabrillo import QSO
 from cabrillo.errors import InvalidLogException
 from cabrillo.parser import parse_log_file, parse_log_text

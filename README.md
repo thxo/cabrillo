@@ -93,3 +93,25 @@ class Cabrillo(builtins.object)
  |      dx_exch: Received exchange incl. RST. List of each component.
  |      t: Transmitter ID for multi-transmitter categories in int. 0/1.
  ```
+
+## Contributors
+
+Pull requests are appreciated!
+
+The following instructions show how to obtain the sourcecode and execute the tests.
+They assume Python 3.3 or later.
+
+For Posix plattforms (which includes Mac and Linux):
+
+```
+git clone https://github.com/thxo/cabrillo.git
+cd cabrillo
+python3 -m venv python-venv
+source python-venv/bin/activate
+pip install -r requirements_test.txt
+py.test --cov-report term-missing --cov cabrillo -v
+```
+
+On a Windows machine, using `cmd.exe`, substitute
+`python-venv/Scripts/activate` for
+`source python-venv/bin/activate`.

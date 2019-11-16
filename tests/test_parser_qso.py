@@ -2,6 +2,7 @@
 from datetime import datetime
 
 import pytest
+import path_helper
 
 from cabrillo.errors import InvalidQSOException
 from cabrillo.parser import parse_qso

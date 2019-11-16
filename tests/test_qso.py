@@ -3,6 +3,8 @@ from datetime import datetime
 
 import pytest
 
+import path_helper
+
 from cabrillo import QSO
 from cabrillo.qso import frequency_to_band
 from cabrillo.errors import InvalidQSOException
