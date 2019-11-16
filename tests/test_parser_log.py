@@ -35,7 +35,8 @@ def test_parse_cqwpx():
         assert cab.address_country == 'USA'
         assert cab.operators == ['AA1XXX', 'AA2XXX', 'AA3XXX']
         assert cab.soapbox == ['Put your comments here.',
-                               'Use multiple lines if needed.']
+                               'Use multiple lines if needed.',
+                               'Once you said "SOAPBOX:", the rest of the line is free-form.']
 
         out_lines = cab.write_text().split('\n')
         correct_lines = open('tests/CQWPX.log').read().split('\n')
