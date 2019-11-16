@@ -101,7 +101,7 @@ def parse_log_text(text, ignore_unknown_key=False, check_categories=True):
             results.setdefault(inverse_keywords[key], list()).append(
                 parse_qso(value))
         elif key == 'OPERATORS':
-            results[inverse_keywords[key]] = value.replace(',', ' ').split()
+            results.setdefault(inverse_keywords[key], list()).extend(value.replace(',', ' ').split())
         elif key in ['ADDRESS', 'SOAPBOX']:
             results.setdefault(inverse_keywords[key], list()).append(value)
         elif key in inverse_keywords.keys():
