@@ -39,7 +39,7 @@ def test_parse_cqwpx():
                                'Once you said "SOAPBOX:", the rest of the line is free-form.']
 
         out_lines = cab.write_text().split('\n')
-        correct_lines = open('tests/CQWPX.log').read().split('\n')
+        correct_lines = open('tests/CQWPX.log').read().strip().split('\n')
         assert len(out_lines) == len(correct_lines) and sorted(
             out_lines) == sorted(correct_lines)
 
