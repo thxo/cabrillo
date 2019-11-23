@@ -3,6 +3,8 @@ from datetime import datetime
 
 import pytest
 
+import path_helper
+
 from cabrillo import QSO
 from cabrillo.errors import InvalidLogException
 from cabrillo.parser import parse_log_file, parse_log_text
@@ -35,10 +37,11 @@ def test_parse_cqwpx():
         assert cab.address_country == 'USA'
         assert cab.operators == ['AA1XXX', 'AA2XXX', 'AA3XXX']
         assert cab.soapbox == ['Put your comments here.',
-                               'Use multiple lines if needed.']
+                               'Use multiple lines if needed.',
+                               'Once you said "SOAPBOX:", the rest of the line is free-form.']
 
         out_lines = cab.write_text().split('\n')
-        correct_lines = open('tests/CQWPX.log').read().split('\n')
+        correct_lines = open('tests/CQWPX.log').read().strip().split('\n')
         assert len(out_lines) == len(correct_lines) and sorted(
             out_lines) == sorted(correct_lines)
 

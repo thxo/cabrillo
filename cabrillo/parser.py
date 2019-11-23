@@ -5,6 +5,7 @@ from cabrillo import QSO, Cabrillo
 from cabrillo.errors import InvalidQSOException, InvalidLogException
 from cabrillo.data import KEYWORD_MAP
 
+import re
 
 def parse_qso(text):
     """Parse a single line of QSO into a QSO object.
@@ -74,12 +75,14 @@ def parse_log_text(text, ignore_unknown_key=False, check_categories=True):
     results = dict()
     results['x_anything'] = dict()
 
+    key_colon_value = re.compile(r'^\s*([^:]+?)\s*:\s*(.*?)\s*$')
     for line in text.split('\n'):
-        try:
-            key, value = [x.replace('\r', '').strip() for x in line.split(':')]
-        except ValueError:
-            raise InvalidLogException('Line not delimited by `:`, '
-                                      'got {}.'.format(line))
+        match = key_colon_value.fullmatch(line)
+        if match:
+            key, value = match.group(1), match.group(2)
+        else:
+            raise InvalidLogException('Line does not start with `:`-delimited key, '
+                                      'got `{}`.'.format(line))
 
         if key == 'END-OF-LOG':
             break
@@ -98,7 +101,7 @@ def parse_log_text(text, ignore_unknown_key=False, check_categories=True):
             results.setdefault(inverse_keywords[key], list()).append(
                 parse_qso(value))
         elif key == 'OPERATORS':
-            results[inverse_keywords[key]] = value.replace(',', ' ').split()
+            results.setdefault(inverse_keywords[key], list()).extend(value.replace(',', ' ').split())
         elif key in ['ADDRESS', 'SOAPBOX']:
             results.setdefault(inverse_keywords[key], list()).append(value)
         elif key in inverse_keywords.keys():

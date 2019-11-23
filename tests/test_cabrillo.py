@@ -4,6 +4,8 @@ from datetime import datetime
 
 import pytest
 
+import path_helper
+
 from cabrillo import Cabrillo, QSO
 from cabrillo.data import VALID_CATEGORIES_MAP
 from cabrillo.errors import InvalidLogException

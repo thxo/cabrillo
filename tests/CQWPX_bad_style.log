@@ -1,4 +1,5 @@
 START-OF-LOG:                     3.0
+QSO:        7005     CW     2009-05-30     0002     AA1ZZZ     599 1 S50A 599 4
 CALLSIGN:                                   AA1ZZZ
 CONTEST:CQ-WPX-CW
 CATEGORY-OPERATOR:       SINGLE-OP
@@ -17,12 +18,15 @@ ADDRESS: 11 Hollis Street
 ADDRESS-CITY: Uxbridge
 ADDRESS-STATE-PROVINCE: MA
 ADDRESS-POSTALCODE: 01569
-ADDRESS-COUNTRY: USA
-OPERATORS: AA1XXX, AA2XXX,         AA3XXX,
-SOAPBOX: Put your comments here.
-SOAPBOX: Use multiple lines if needed.
-QSO:        7005     CW     2009-05-30     0002     AA1ZZZ     599 1 S50A 599 4
 QSO: 7006 CW 2009-05-30                0015 AA1ZZZ 599 2 EF8M 599           34
+ADDRESS-COUNTRY: USA
+OPERATORS: AA1XXX, AA2XXX,
+OPERATORS:
+OPERATORS:        
+OPERATORS: AA3XXX,
+SOAPBOX: Put your comments here.    
+SOAPBOX:   Use multiple lines if needed.
+SOAPBOX:     Once you said "SOAPBOX:", the rest of the line is free-form.     
 END-OF-LOG:
 
 

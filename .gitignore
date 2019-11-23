@@ -79,6 +79,8 @@ ipython_config.py
 
 # pyenv
 .python-version
+# Virtual env as proposed in README
+python-venv
 
 # celery beat schedule file
 celerybeat-schedule
