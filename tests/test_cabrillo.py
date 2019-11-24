@@ -2,9 +2,8 @@
 
 from datetime import datetime
 
-import pytest
-
 import path_helper
+import pytest
 
 from cabrillo import Cabrillo, QSO
 from cabrillo.data import VALID_CATEGORIES_MAP
@@ -21,11 +20,21 @@ def test_all_attributes():
                datetime.strptime('May 30 2009 12:02AM', '%b %d %Y %I:%M%p'),
                'AA1ZZZ', 'S50A', de_exch=['599', '1'], dx_exch=['599', '4'],
                t=None),
+           QSO('7007', 'CW',
+               datetime.strptime('May 30 2009 12:02AM', '%b %d %Y %I:%M%p'),
+               'AA1XZZ', 'S50A', de_exch=['599', '1'], dx_exch=['599', '4'],
+               t=None, valid=False),
            QSO('7006', 'CW',
                datetime.strptime('May 30 2009 12:15AM', '%b %d %Y %I:%M%p'),
                'AA1ZZZ', 'EF8M', de_exch=['599', '2'], dx_exch=['599', '34'],
-               t=None)
+               t=None),
+           QSO('7008', 'CW',
+               datetime.strptime('May 30 2009 12:17AM', '%b %d %Y %I:%M%p'),
+               'AA1ZZZ', 'EF8M', de_exch=['599', '2'], dx_exch=['599', '34'],
+               t=None, valid=False)
            ]
+    x_qso = [qso[1], qso[3]]
+    valid_qso = [qso[0], qso[2]]
     cab = Cabrillo(callsign='AA1ZZZ', contest='CQ-WPX-CW',
                    category_operator='SINGLE-OP',
                    category_assisted='NON-ASSISTED', category_band='ALL',
@@ -38,7 +47,7 @@ def test_all_attributes():
                    name='Randy Thompson', address=['11 Hollis Street'],
                    address_city='Uxbridge', address_state_province='MA',
                    address_postalcode='01569', address_country='USA',
-                   operators=['K5ZD', 'KX0XXX'], qso=qso, x_qso=qso,
+                   operators=['K5ZD', 'KX0XXX'], qso=qso,
                    soapbox=['Put your comments here.',
                             'Use multiple lines if needed.'],
                    x_anything={'X-TEST-1': 'ignore'})
@@ -71,34 +80,48 @@ def test_all_attributes():
     assert cab.address_country == 'USA'
     assert cab.operators == ['K5ZD', 'KX0XXX']
     assert cab.qso == qso
-    assert cab.x_qso == qso
+    assert cab.x_qso == x_qso
+    assert cab.valid_qso == valid_qso
     assert cab.soapbox == ['Put your comments here.',
                            'Use multiple lines if needed.']
 
     # Writing test.
-    correct = ['START-OF-LOG: 3.0', 'CALLSIGN: AA1ZZZ', 'CONTEST: CQ-WPX-CW',
-               'CATEGORY-OPERATOR: SINGLE-OP',
-               'CATEGORY-ASSISTED: NON-ASSISTED', 'CATEGORY-BAND: ALL',
-               'CATEGORY-POWER: HIGH', 'CATEGORY-MODE: CW',
-               'CATEGORY-TRANSMITTER: ONE', 'CATEGORY-OVERLAY: TB-WIRES',
-               'CATEGORY-STATION: FIXED', 'CATEGORY-TIME: 24-HOURS',
-               'CERTIFICATE: YES', 'EMAIL: test@test.arpa',
-               'OFFTIME: 2009-05-30 0003 2009-05-30 0005',
-               'CLAIMED-SCORE: 24', 'CLUB: Yankee Clipper Contest Club',
-               'LOCATION: WMA', 'CREATED-BY: WriteLog V10.72C',
-               'NAME: Randy Thompson', 'ADDRESS: 11 Hollis Street',
-               'ADDRESS-CITY: Uxbridge', 'ADDRESS-STATE-PROVINCE: MA',
-               'ADDRESS-POSTALCODE: 01569', 'ADDRESS-COUNTRY: USA',
-               'OPERATORS: K5ZD KX0XXX', 'SOAPBOX: Put your comments here.',
-               'SOAPBOX: Use multiple lines if needed.',
-               'QSO: 7005 CW 2009-05-30 0002 AA1ZZZ 599 1 S50A 599 4',
-               'QSO: 7006 CW 2009-05-30 0015 AA1ZZZ 599 2 EF8M 599 34',
-               'X-QSO: 7005 CW 2009-05-30 0002 AA1ZZZ 599 1 S50A 599 4',
-               'X-QSO: 7006 CW 2009-05-30 0015 AA1ZZZ 599 2 EF8M 599 34',
-               'X-TEST-1: ignore',
-               'END-OF-LOG:']
-    lines = cab.write_text().split('\n')
-    assert sorted(correct) == sorted(lines)
+    correct = """START-OF-LOG: 3.0
+CALLSIGN: AA1ZZZ
+OPERATORS: K5ZD KX0XXX
+CONTEST: CQ-WPX-CW
+CLAIMED-SCORE: 24
+CERTIFICATE: YES
+CATEGORY-OPERATOR: SINGLE-OP
+CATEGORY-ASSISTED: NON-ASSISTED
+CATEGORY-BAND: ALL
+CATEGORY-POWER: HIGH
+CATEGORY-MODE: CW
+CATEGORY-STATION: FIXED
+CATEGORY-TIME: 24-HOURS
+CATEGORY-TRANSMITTER: ONE
+CATEGORY-OVERLAY: TB-WIRES
+OFFTIME: 2009-05-30 0003 2009-05-30 0005
+CLUB: Yankee Clipper Contest Club
+NAME: Randy Thompson
+EMAIL: test@test.arpa
+LOCATION: WMA
+ADDRESS: 11 Hollis Street
+ADDRESS-CITY: Uxbridge
+ADDRESS-STATE-PROVINCE: MA
+ADDRESS-POSTALCODE: 01569
+ADDRESS-COUNTRY: USA
+CREATED-BY: WriteLog V10.72C
+SOAPBOX: Put your comments here.
+SOAPBOX: Use multiple lines if needed.
+X-TEST-1: ignore
+QSO: 7005 CW 2009-05-30 0002 AA1ZZZ 599 1 S50A 599 4
+X-QSO: 7007 CW 2009-05-30 0002 AA1XZZ 599 1 S50A 599 4
+QSO: 7006 CW 2009-05-30 0015 AA1ZZZ 599 2 EF8M 599 34
+X-QSO: 7008 CW 2009-05-30 0017 AA1ZZZ 599 2 EF8M 599 34
+END-OF-LOG:
+"""
+    assert correct == cab.text()
 
 
 def test_unicode():
@@ -106,19 +129,23 @@ def test_unicode():
     """
     cab = Cabrillo(callsign='VR2TEST',
                    address=['毛澤大道東89號', '鶴咀'], address_city='石澳')
-    lines = cab.write_text().split('\n')
-    correct = ['START-OF-LOG: 3.0', 'CALLSIGN: VR2TEST',
-               'ADDRESS: 毛澤大道東89號', 'ADDRESS: 鶴咀', 'ADDRESS-CITY: 石澳',
-               'CREATED-BY: cabrillo (Python)', 'END-OF-LOG:']
-    assert len(correct) == len(lines) and sorted(correct) == sorted(lines)
+    correct = """START-OF-LOG: 3.0
+CALLSIGN: VR2TEST
+ADDRESS: 毛澤大道東89號
+ADDRESS: 鶴咀
+ADDRESS-CITY: 石澳
+CREATED-BY: cabrillo (Python)
+END-OF-LOG:
+"""
+    assert correct == cab.text()
 
 
 def test_yes_no():
     """Test the conversion from boolean to YES/NO."""
     assert 'CERTIFICATE: YES' in Cabrillo(callsign='TEST100TEST',
-                                          certificate=True).write_text()
+                                          certificate=True).text()
     assert 'CERTIFICATE: NO' in Cabrillo(callsign='TEST100TEST',
-                                         certificate=False).write_text()
+                                         certificate=False).text()
 
 
 def test_exceptions():
@@ -140,4 +167,4 @@ def test_exceptions():
     with pytest.raises(InvalidLogException) as _:
         cab = Cabrillo(callsign='TEST100TEST', version='3.0')
         cab.version = 2.0
-        cab.write_text()
+        cab.text()

@@ -3,7 +3,6 @@
 from cabrillo import data
 from cabrillo.errors import InvalidQSOException
 
-
 def frequency_to_band(freq):
     """Converts numeric frequency in kHz to band designation.
     
@@ -51,10 +50,11 @@ class QSO:
         dx_call: Received callsign.
         dx_exch: Received exchange incl. RST. List of each component.
         t: Transmitter ID for multi-transmitter categories in int. 0/1.
+        valid: True: Valid QSO, False: X-QSO.
     """
 
-    def __init__(self, freq, mo, date, de_call, dx_call, de_exch=None,
-                 dx_exch=None, t=None):
+    def __init__(self, freq, mo, date, de_call, dx_call, de_exch=[],
+                 dx_exch=[], t=None, valid=True):
         """Construct a QSO object.
 
         Arguments:
@@ -68,18 +68,11 @@ class QSO:
         self.mo = mo
         self.date = date
         self.de_call = de_call
+        self.de_exch = de_exch
         self.dx_call = dx_call
+        self.dx_exch = dx_exch
         self.t = t
-
-        if not de_exch:
-            self.de_exch = list()
-        else:
-            self.de_exch = de_exch
-
-        if not dx_exch:
-            self.dx_exch = list()
-        else:
-            self.dx_exch = dx_exch
+        self.valid = valid
 
     def match_against(self, other, max_time_delta=30, check_exch=True,
                       check_band=True):
@@ -155,14 +148,15 @@ class QSO:
         return True
 
     def __str__(self):
-        line = '{} {} {} {} {} {} {} {}'
+        line = '{}: {} {} {} {} {} {} {} {}'
         time_str = self.date.strftime("%Y-%m-%d %H%M")
         if self.t is None:
             t_text = ''
         else:
             t_text = self.t
 
-        return line.format(self.freq, self.mo,
+        return line.format("QSO" if self.valid else "X-QSO",
+                           self.freq, self.mo,
                            time_str,
                            self.de_call,
                            ' '.join(self.de_exch).strip(),

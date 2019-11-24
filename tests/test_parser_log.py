@@ -40,17 +40,40 @@ def test_parse_cqwpx():
                                'Use multiple lines if needed.',
                                'Once you said "SOAPBOX:", the rest of the line is free-form.']
 
-        out_lines = cab.write_text().split('\n')
-        correct_lines = open('tests/CQWPX.log').read().strip().split('\n')
-        assert len(out_lines) == len(correct_lines) and sorted(
-            out_lines) == sorted(correct_lines)
+        out_lines = cab.text()
+        with open('tests/CQWPX.log') as infile:
+            correct_lines = infile.read()
+        assert out_lines == correct_lines
 
+def test_parse_iaru():
+    cab = parse_log_file('tests/iaru.log')
+    assert cab.operators == ['@DJ3EI']
+    assert 2 == len(cab.qso)
+    assert cab.qso[0].dx_exch == ["599", "REF"]
+    assert cab.qso[0].dx_call == "TM0HQ"
+    assert 1 == len(cab.valid_qso)
+    assert cab.valid_qso[0].dx_call == "EI0HQ"
+    assert 1 == len(cab.x_qso)
+    assert cab.x_qso[0].dx_exch == ["599", "REF"]
 
+def test_badorder():
+    with pytest.raises(InvalidLogException) as _:
+        parse_log_file('tests/badorder.log')
+    cab_unordered = parse_log_file('tests/badorder.log', ignore_order=True)
+    with pytest.raises(InvalidLogException) as _:
+        cab_unordered.text()
+        
 def test_parse_yarc():
     """Test a log file from the YARC QSO Party."""
     cab = parse_log_file('tests/YARC.log')
     assert cab.certificate is True
-    assert cab.x_anything.get('X-BUS-ROUTE', None) == '372'
+    # Check the X-... come out in the order they occure in the file.
+    # (This is not demanded by the Cabrillo spec, but seems sensible to do.)
+    x_anything_items = list(cab.x_anything.items())
+    assert 3 == len(x_anything_items)
+    assert x_anything_items[0] == ('X-LOREM', 'Ipsum')
+    assert x_anything_items[1] == ('X-ORDER', 'Maybe matters.')
+    assert x_anything_items[2] == ('X-BUS-ROUTE', '372')
 
     qso = QSO('14200', 'PH',
               datetime.strptime('Dec 01 2018 2:20PM', '%b %d %Y %I:%M%p'),

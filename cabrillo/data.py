@@ -5,6 +5,8 @@ https://wwrof.org/cabrillo/cabrillo-specification-v3/
 All values below should remain upper case.
 """
 
+import collections
+
 CATEGORY_ASSISTED = ['ASSISTED', 'NON-ASSISTED']
 CATEGORY_BAND = ['ALL', '160M', '80M', '40M', '20M', '15M', '10M', '6M', '4M',
                  '2M', '222', '432', '902', '1.2G', '2.3G', '3.4G', '5.7G',
@@ -20,25 +22,41 @@ CATEGORY_TRANSMITTER = ['ONE', 'TWO', 'LIMITED', 'UNLIMITED', 'SWL']
 CATEGORY_OVERLAY = ['CLASSIC', 'ROOKIE', 'TB-WIRES', 'NOVICE-TECH', 'OVER-50']
 MODES = ['CW', 'PH', 'FM', 'RY', 'DG']
 
-KEYWORD_MAP = dict(version='START-OF-LOG', callsign='CALLSIGN',
-                   contest='CONTEST', category_assisted='CATEGORY-ASSISTED',
-                   category_band='CATEGORY-BAND',
-                   category_mode='CATEGORY-MODE',
-                   category_operator='CATEGORY-OPERATOR',
-                   category_power='CATEGORY-POWER',
-                   category_station='CATEGORY-STATION',
-                   category_time='CATEGORY-TIME',
-                   category_transmitter='CATEGORY-TRANSMITTER',
-                   category_overlay='CATEGORY-OVERLAY',
-                   certificate='CERTIFICATE', claimed_score='CLAIMED-SCORE',
-                   club='CLUB', created_by='CREATED-BY', email='EMAIL',
-                   location='LOCATION', name='NAME', address='ADDRESS',
-                   address_city='ADDRESS-CITY',
-                   address_state_province='ADDRESS-STATE-PROVINCE',
-                   address_postalcode='ADDRESS-POSTALCODE',
-                   address_country='ADDRESS-COUNTRY', operators='OPERATORS',
-                   offtime='OFFTIME', soapbox='SOAPBOX', qso='QSO',
-                   x_qso='X-QSO')
+# Fields that will be output in the sequence given here.
+# Does not include START-OF-LOG nor QSO nor X-QSO,
+# which will be treated specifically.
+OUTPUT_KEYWORD_MAP = collections.OrderedDict()
+
+OUTPUT_KEYWORD_MAP['callsign'] = 'CALLSIGN'
+OUTPUT_KEYWORD_MAP['operators'] = 'OPERATORS'
+OUTPUT_KEYWORD_MAP['contest'] = 'CONTEST'
+OUTPUT_KEYWORD_MAP['claimed_score'] = 'CLAIMED-SCORE'
+OUTPUT_KEYWORD_MAP['certificate'] = 'CERTIFICATE'
+OUTPUT_KEYWORD_MAP['category_operator'] = 'CATEGORY-OPERATOR'
+OUTPUT_KEYWORD_MAP['category_assisted'] = 'CATEGORY-ASSISTED'
+OUTPUT_KEYWORD_MAP['category_band'] = 'CATEGORY-BAND'
+OUTPUT_KEYWORD_MAP['category_power'] = 'CATEGORY-POWER'
+OUTPUT_KEYWORD_MAP['category_mode'] = 'CATEGORY-MODE'
+OUTPUT_KEYWORD_MAP['category_station'] = 'CATEGORY-STATION'
+OUTPUT_KEYWORD_MAP['category_time'] = 'CATEGORY-TIME'
+OUTPUT_KEYWORD_MAP['category_transmitter'] = 'CATEGORY-TRANSMITTER'
+OUTPUT_KEYWORD_MAP['category_overlay'] = 'CATEGORY-OVERLAY'
+OUTPUT_KEYWORD_MAP['offtime'] = 'OFFTIME'
+OUTPUT_KEYWORD_MAP['club'] = 'CLUB'
+OUTPUT_KEYWORD_MAP['name'] = 'NAME'
+OUTPUT_KEYWORD_MAP['email'] = 'EMAIL'
+OUTPUT_KEYWORD_MAP['location'] = 'LOCATION'
+OUTPUT_KEYWORD_MAP['address'] = 'ADDRESS'
+OUTPUT_KEYWORD_MAP['address_city'] = 'ADDRESS-CITY'
+OUTPUT_KEYWORD_MAP['address_state_province'] = 'ADDRESS-STATE-PROVINCE'
+OUTPUT_KEYWORD_MAP['address_postalcode'] = 'ADDRESS-POSTALCODE'
+OUTPUT_KEYWORD_MAP['address_country'] = 'ADDRESS-COUNTRY'
+OUTPUT_KEYWORD_MAP['created_by'] = 'CREATED-BY'
+OUTPUT_KEYWORD_MAP['soapbox'] = 'SOAPBOX'
+
+# Keywords we accept on input.
+KEYWORD_MAP = dict(OUTPUT_KEYWORD_MAP, version='START-OF-LOG', qso='QSO', x_qso='X-QSO')
+
 VALID_CATEGORIES_MAP = dict(category_assisted=CATEGORY_ASSISTED,
                             category_band=CATEGORY_BAND,
                             category_mode=CATEGORY_MODE,
