@@ -5,9 +5,10 @@ from cabrillo import QSO, Cabrillo
 from cabrillo.errors import InvalidQSOException, InvalidLogException
 from cabrillo.data import KEYWORD_MAP
 
+import collections
 import re
 
-def parse_qso(text):
+def parse_qso(text, valid):
     """Parse a single line of QSO into a QSO object.
 
     Arguments:
@@ -46,10 +47,12 @@ def parse_qso(text):
                de_exch=components[5:int(3 + num_exchanged / 2 + 1)],
                dx_call=components[int(3 + num_exchanged / 2 + 1)],
                dx_exch=components[int(3 + num_exchanged / 2 + 2):
-                                  int(3 + num_exchanged + 1)], t=transmitter)
+                                  int(3 + num_exchanged + 1)],
+               t=transmitter,
+               valid=valid)
 
 
-def parse_log_text(text, ignore_unknown_key=False, check_categories=True):
+def parse_log_text(text, ignore_unknown_key=False, check_categories=True, ignore_order=False):
     """Parse a Cabrillo log in text form.
 
     Attributes in cabrillo.data.KEYWORD_MAP will be parsed accordingly. X-
@@ -62,8 +65,8 @@ def parse_log_text(text, ignore_unknown_key=False, check_categories=True):
             Cabrillo specification.
         ignore_unknown_key: Boolean denoting whether if unknown and non X-
             attributes should be ignored if found in long. Otherwise,
-            an InvalidLogException will be raised. Defaults to False (
-            enforces valid keyword).
+            an InvalidLogException will be raised. Defaults to False
+            (which enforces valid keywords).
 
     Returns:
         cabrillo.Cabrillo
@@ -73,7 +76,7 @@ def parse_log_text(text, ignore_unknown_key=False, check_categories=True):
     """
     inverse_keywords = {v: k for k, v in KEYWORD_MAP.items()}
     results = dict()
-    results['x_anything'] = dict()
+    results['x_anything'] = collections.OrderedDict()
 
     key_colon_value = re.compile(r'^\s*([^:]+?)\s*:\s*(.*?)\s*$')
     for line in text.split('\n'):
@@ -98,8 +101,9 @@ def parse_log_text(text, ignore_unknown_key=False, check_categories=True):
         elif key == 'CERTIFICATE':
             results[inverse_keywords[key]] = value == 'YES'
         elif key in ['QSO', 'X-QSO']:
-            results.setdefault(inverse_keywords[key], list()).append(
-                parse_qso(value))
+            # Do not split QSO and X-QSO case here.
+            # By not splitting, we keep timewise order for QSOs that have the same timestamp.
+            results.setdefault("qso", []).append(parse_qso(value, key == "QSO"))
         elif key == 'OPERATORS':
             results.setdefault(inverse_keywords[key], list()).extend(value.replace(',', ' ').split())
         elif key in ['ADDRESS', 'SOAPBOX']:
@@ -107,14 +111,15 @@ def parse_log_text(text, ignore_unknown_key=False, check_categories=True):
         elif key in inverse_keywords.keys():
             results[inverse_keywords[key]] = value
         elif key.startswith('X-'):
+            # We keep the order that we were given.
             results['x_anything'][key] = value
         elif not ignore_unknown_key:
             raise InvalidLogException("Unknown key {} read.".format(key))
 
-    return Cabrillo(check_categories=check_categories, **results)
+    return Cabrillo(check_categories=check_categories, ignore_order=ignore_order, **results)
 
 
-def parse_log_file(filename, ignore_unknown_key=False, check_categories=True):
+def parse_log_file(filename, ignore_unknown_key=False, check_categories=True, ignore_order=False):
     """Parse a Cabrillo log file.
 
         Attributes in cabrillo.data.KEYWORD_MAP will be parsed accordingly. X-
@@ -127,6 +132,8 @@ def parse_log_file(filename, ignore_unknown_key=False, check_categories=True):
                 Cabrillo specification.
             ignore_unknown_key: Boolean denoting whether if unknown and non X-
                 attributes should be ignored if found in long. Defaults to False.
+            ignore_order: Cabrillo logs need to be ordered time-wise.
+                Whether to ignore violations on input and disable output.
 
         Returns:
             cabrillo.Cabrillo
@@ -135,4 +142,4 @@ def parse_log_file(filename, ignore_unknown_key=False, check_categories=True):
             InvalidQSOException, InvalidLogException
     """
     with open(filename, 'r') as f:
-        return parse_log_text(f.read(), ignore_unknown_key, check_categories)
+        return parse_log_text(f.read(), ignore_unknown_key, check_categories, ignore_order)

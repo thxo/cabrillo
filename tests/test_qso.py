@@ -15,7 +15,7 @@ def test_yarc():
     qso = QSO('14313', 'PH',
               datetime.strptime('May 30 2018 10:10PM', '%b %d %Y %I:%M%p'),
               'KX0XXX', 'KX9XXX',
-              de_exch=['59', '10', 'CO'], dx_exch=['44', '20', 'IN'], t=None)
+              de_exch=['59', '10', 'CO'], dx_exch=['44', '20', 'IN'], t=None, valid=False)
     assert qso.freq == '14313'
     assert qso.mo == 'PH'
     assert qso.date == datetime.strptime('May 30 2018 10:10PM',
@@ -25,7 +25,7 @@ def test_yarc():
     assert qso.de_exch == ['59', '10', 'CO']
     assert qso.dx_exch == ['44', '20', 'IN']
     assert qso.t is None
-    assert str(qso) == '14313 PH 2018-05-30 2210 KX0XXX 59 10 CO KX9XXX 44 ' \
+    assert str(qso) == 'X-QSO: 14313 PH 2018-05-30 2210 KX0XXX 59 10 CO KX9XXX 44 ' \
                        '20 IN'
 
 
@@ -44,7 +44,7 @@ def test_with_xmtr():
     assert qso.de_exch == ['59', 'CO']
     assert qso.dx_exch == ['44', 'IL']
     assert qso.t == 1
-    assert str(qso) == '241G PH 2018-05-30 2210 KX0XXX 59 CO KX9XXX 44 ' \
+    assert str(qso) == 'QSO: 241G PH 2018-05-30 2210 KX0XXX 59 CO KX9XXX 44 ' \
                        'IL 1'
 
 
@@ -52,13 +52,13 @@ def test_invalid_mode():
     """Test the QSO class with invalid modes."""
     with pytest.raises(InvalidQSOException) as _:
         QSO(freq='LIGHT', mo='MCW', date=datetime.now(), de_call='KX0XXX',
-            dx_call='KX9XXX')
+            dx_call='KX9XXX', valid=True)
 
 
 def test_automatic_list():
     """Test automatic creation of lists for exchanges."""
     qso = QSO(freq='LIGHT', mo='CW', date=datetime.now(), de_call='KX0XXX',
-              dx_call='KX9XXX')
+              dx_call='KX9XXX', valid=False)
     assert qso.de_exch == []
     assert qso.dx_exch == []
 
@@ -82,11 +82,11 @@ def test_qso_match():
     qso1 = QSO('14313', 'PH',
                datetime.strptime('May 30 2018 10:10PM', '%b %d %Y %I:%M%p'),
                'KX0XXX', 'KX9XXX',
-               de_exch=['59', '10', 'CO'], dx_exch=['44', '20', 'IN'], t=None)
+               de_exch=['59', '10', 'CO'], dx_exch=['44', '20', 'IN'], t=None, valid=True)
     qso2 = QSO('14313', 'PH',
                datetime.strptime('May 30 2018 10:10PM', '%b %d %Y %I:%M%p'),
                'KX9XXX', 'KX0XXX',
-               de_exch=['44', '20', 'IN'], dx_exch=['59', '10', 'CO'], t=None)
+               de_exch=['44', '20', 'IN'], dx_exch=['59', '10', 'CO'], t=None, valid=False)
 
     assert qso1.match_against(qso2) is True
     assert qso2.match_against(qso1) is True
