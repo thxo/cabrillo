@@ -1,6 +1,6 @@
 cabrillo [![Build Status](https://travis-ci.com/thxo/cabrillo.svg?branch=master)](https://travis-ci.com/thxo/cabrillo)
 ---------------------
-A Python library to parse Cabrillo-format amateur radio contest logs. 
+A Python library to parse Cabrillo-format amateur radio contest logs, with no external dependencies.
 
 # Getting Started
 
@@ -136,9 +136,7 @@ class Cabrillo(builtins.object)
 Pull requests are appreciated!
 
 The following instructions show how to obtain the sourcecode and execute the tests.
-They assume Python 3.3 or later.
-
-For Posix plattforms (which includes Mac and Linux):
+They assume Python 3.3 or later: 
 
 ```sh
 git clone https://github.com/thxo/cabrillo.git
@@ -146,7 +144,7 @@ cd cabrillo
 python3 -m venv python-venv
 source python-venv/bin/activate
 pip install -r requirements_test.txt
-py.test --cov-report term-missing --cov cabrillo -v
+python -m pytest --cov-report term-missing --cov cabrillo -v
 ```
 
 On a Windows machine, using `cmd.exe`, substitute
