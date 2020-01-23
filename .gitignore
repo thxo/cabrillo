@@ -117,3 +117,6 @@ dmypy.json
 
 # JetBrains & Co.
 .idea/
+
+# Visual Studio Code
+.vscode/
