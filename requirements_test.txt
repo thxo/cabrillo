@@ -3,7 +3,7 @@ attrs==18.2.0
 coverage==4.5.2
 more-itertools==4.3.0
 pluggy==0.8.0
-py==1.7.0
+py==1.10.0
 pytest==4.0.2
 pytest-cov==2.6.0
 six==1.12.0
