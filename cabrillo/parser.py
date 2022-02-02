@@ -141,5 +141,5 @@ def parse_log_file(filename, ignore_unknown_key=False, check_categories=True, ig
         Raises:
             InvalidQSOException, InvalidLogException
     """
-    with open(filename, 'r') as f:
+    with open(filename, 'r', encoding='unicode_escape') as f:
         return parse_log_text(f.read(), ignore_unknown_key, check_categories, ignore_order)
