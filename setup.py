@@ -5,9 +5,9 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="cabrillo",
-    version="0.0.4",
-    author="Howard Xiao",
-    author_email="thx@thxo.org",
+    version="0.1.0",
+    author="thxo",
+    author_email="thx@uw.edu",
     description="A Python library to parse Cabrillo-format amateur radio "
                 "contest logs.",
     long_description=long_description,
