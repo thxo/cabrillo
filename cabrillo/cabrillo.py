@@ -8,6 +8,7 @@ import io
 from cabrillo import data
 from cabrillo.errors import InvalidLogException
 
+
 class Cabrillo:
     """Representation of a Cabrillo log file.
 
@@ -61,21 +62,22 @@ class Cabrillo:
         Raises:
             InvalidLogException
         """
-        d.setdefault('created_by', 'cabrillo (Python)')
+        d.setdefault("created_by", "cabrillo (Python)")
         for key in data.OUTPUT_KEYWORD_MAP:
             setattr(self, key, d.get(key, None))
 
-        self.x_anything = d.get('x_anything', collections.OrderedDict())
+        self.x_anything = d.get("x_anything", collections.OrderedDict())
 
-        version = d.get('version', '3.0')
-        if version != '3.0':
-            raise InvalidLogException("Only Cabrillo v3 supported, "
-                                      "got {}".format(version))
+        version = d.get("version", "3.0")
+        if version != "3.0":
+            raise InvalidLogException(
+                "Only Cabrillo v3 supported, " "got {}".format(version)
+            )
         else:
             self.version = version
 
         self.qso = []
-        for qso in d.get('qso', []):
+        for qso in d.get("qso", []):
             self.append_qso(qso, ignore_order)
 
         self.ignore_order = ignore_order
@@ -85,8 +87,10 @@ class Cabrillo:
                 value = getattr(self, attribute, None)
                 if value and value not in candidates:
                     raise InvalidLogException(
-                        'Got {} for {} but expecting one of {}.'.format(
-                            value, attribute, candidates))
+                        "Got {} for {} but expecting one of {}.".format(
+                            value, attribute, candidates
+                        )
+                    )
 
     valid_qso = property(fget=lambda self: [qso for qso in self.qso if qso.valid])
     x_qso = property(fget=lambda self: [qso for qso in self.qso if not qso.valid])
@@ -133,44 +137,51 @@ class Cabrillo:
             InvalidLogException when target Cabrillo version is not 3.0
             or ignore_ordered mode is active.
         """
-        if self.version != '3.0':
+        if self.version != "3.0":
             raise InvalidLogException("Only Cabrillo v3 supported.")
 
         if self.ignore_order:
-            raise InvalidLogException("Refuse produce output in ignore_ordered mode as Cabrillo logs need to be ordered time-wise.")
+            raise InvalidLogException(
+                "Refuse produce output in ignore_ordered mode as Cabrillo logs need to be ordered time-wise."
+            )
 
-        print('START-OF-LOG: {}'.format(self.version), file=file)
+        print("START-OF-LOG: {}".format(self.version), file=file)
 
         # Output known attributes.
         for attribute, keyword in data.OUTPUT_KEYWORD_MAP.items():
             value = getattr(self, attribute, None)
             if value is not None:
-                if attribute == 'certificate':
+                if attribute == "certificate":
                     # Convert boolean to YES/NO.
-                    print('{}: {}'.format(keyword, 'YES' if value else 'NO'), file=file)
-                elif attribute in ['address', 'soapbox']:
+                    print("{}: {}".format(keyword, "YES" if value else "NO"), file=file)
+                elif attribute in ["address", "soapbox"]:
                     # Process multi-line attributes.
                     for x in value:
-                        print('{}: {}'.format(keyword, x), file=file)
-                elif attribute == 'operators':
+                        print("{}: {}".format(keyword, x), file=file)
+                elif attribute == "operators":
                     # Process attributes delimited by space.
-                    print('{}: {}'.format(keyword, ' '.join(value)), file=file)
-                elif attribute == 'offtime':
+                    print("{}: {}".format(keyword, " ".join(value)), file=file)
+                elif attribute == "offtime":
                     # Process offtime dates.
-                    print('{}: {}'.format(keyword, ' '.join(
-                        [x.strftime("%Y-%m-%d %H%M") for x in value])), file=file)
-                elif value and attribute != 'version':
-                    print('{}: {}'.format(keyword, value), file=file)
+                    print(
+                        "{}: {}".format(
+                            keyword,
+                            " ".join([x.strftime("%Y-%m-%d %H%M") for x in value]),
+                        ),
+                        file=file,
+                    )
+                elif value and attribute != "version":
+                    print("{}: {}".format(keyword, value), file=file)
 
         # Output ignored attributes.
         for attribute, keyword in self.x_anything.items():
-            print('{}: {}'.format(attribute.replace('_', '-'), keyword), file=file)
+            print("{}: {}".format(attribute.replace("_", "-"), keyword), file=file)
 
         # Output QSOs:
         for qso in self.qso:
             print(qso, file=file)
 
-        print('END-OF-LOG:', file=file)
+        print("END-OF-LOG:", file=file)
 
     def __str__(self):
-        return '<Cabrillo for {}>'.format(self.callsign)
+        return "<Cabrillo for {}>".format(self.callsign)

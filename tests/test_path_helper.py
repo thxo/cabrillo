@@ -5,5 +5,5 @@ import os.path
 
 project_root_dir = os.path.dirname(os.path.dirname(__file__))
 
-if not project_root_dir in sys.path:
+if project_root_dir not in sys.path:
     sys.path.append(project_root_dir)

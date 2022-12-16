@@ -6,4 +6,4 @@ from cabrillo.qso import QSO
 from cabrillo.cabrillo import Cabrillo
 
 __all__ = [QSO, Cabrillo]
-name = 'cabrillo'
+name = "cabrillo"

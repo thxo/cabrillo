@@ -3,9 +3,35 @@
 from cabrillo import data
 from cabrillo.errors import InvalidQSOException
 
+
+def convert_mode(mode):
+    mode_sources = [
+        data.PH_MODES,
+        data.CW_MODES,
+        data.FM_MODES,
+        data.RTTY_MODES,
+        data.DG_MODES,
+    ]
+
+    for source in mode_sources:
+        if mode in source:
+            if source == data.PH_MODES:
+                return "PH"
+            elif source == data.CW_MODES:
+                return "CW"
+            elif source == data.FM_MODES:
+                return "FM"
+            elif source == data.RTTY_MODES:
+                return "RY"
+            elif source == data.DG_MODES:
+                return "DG"
+
+    raise ValueError(f"Could not convert '{mode}' to a Cabrillo-compatible mode!")
+
+
 def frequency_to_band(freq):
     """Converts numeric frequency in kHz to band designation.
-    
+
     The Cabrillo specification allows the usage of exact frequency in lieu of
     band category. For example, one may use 14313 to denote the exact
     frequency, while the other operator may log simply as 14000 to denote 20m.
@@ -53,8 +79,18 @@ class QSO:
         valid: True: Valid QSO, False: X-QSO.
     """
 
-    def __init__(self, freq, mo, date, de_call, dx_call, de_exch=[],
-                 dx_exch=[], t=None, valid=True):
+    def __init__(
+        self,
+        freq,
+        mo,
+        date,
+        de_call,
+        dx_call,
+        de_exch=[],
+        dx_exch=[],
+        t=None,
+        valid=True,
+    ):
         """Construct a QSO object.
 
         Arguments:
@@ -62,7 +98,9 @@ class QSO:
             de_exch and dx_exch are optional lists.
         """
         if mo not in data.MODES:
-            raise InvalidQSOException('{} is not a valid mode.'.format(mo))
+            mo = convert_mode(mo)
+            if mo is None:
+                raise InvalidQSOException("{} is not a valid mode.".format(mo))
 
         self.freq = freq
         self.mo = mo
@@ -74,8 +112,7 @@ class QSO:
         self.t = t
         self.valid = valid
 
-    def match_against(self, other, max_time_delta=30, check_exch=True,
-                      check_band=True):
+    def match_against(self, other, max_time_delta=30, check_exch=True, check_band=True):
         """Verify if another QSO is the counterpart of this QSO from the other
         station.
 
@@ -104,9 +141,11 @@ class QSO:
         """
         # Check time delta sanity.
         if max_time_delta != -1 and max_time_delta < 0:
-            raise ValueError('Time delta should nonnegative. The only '
-                             'exception is -1, which would turn off time '
-                             'checking.')
+            raise ValueError(
+                "Time delta should nonnegative. The only "
+                "exception is -1, which would turn off time "
+                "checking."
+            )
 
         # Check callsign
         if self.de_call != other.dx_call or self.dx_call != other.de_call:
@@ -148,25 +187,33 @@ class QSO:
         return True
 
     def __str__(self):
-        line = '{}: {} {} {} {} {} {} {} {}'
+        line = "{}: {} {} {} {} {} {} {} {}"
         time_str = self.date.strftime("%Y-%m-%d %H%M")
         if self.t is None:
-            t_text = ''
+            t_text = ""
         else:
             t_text = self.t
 
-        return line.format("QSO" if self.valid else "X-QSO",
-                           self.freq, self.mo,
-                           time_str,
-                           self.de_call,
-                           ' '.join(self.de_exch).strip(),
-                           self.dx_call,
-                           ' '.join(self.dx_exch).strip(),
-                           t_text).strip()
+        return line.format(
+            "QSO" if self.valid else "X-QSO",
+            self.freq,
+            self.mo,
+            time_str,
+            self.de_call,
+            " ".join(self.de_exch).strip(),
+            self.dx_call,
+            " ".join(self.dx_exch).strip(),
+            t_text,
+        ).strip()
 
     def __eq__(self, other):
         """Define equal QSO."""
-        return self.freq == other.freq and self.mo == other.mo and self.date \
-               == other.date and self.de_call == other.de_call and \
-               self.dx_call == other.dx_call and self.de_exch == \
-               other.de_exch and self.dx_exch == other.dx_exch
+        return (
+            self.freq == other.freq
+            and self.mo == other.mo
+            and self.date == other.date
+            and self.de_call == other.de_call
+            and self.dx_call == other.dx_call
+            and self.de_exch == other.de_exch
+            and self.dx_exch == other.dx_exch
+        )
