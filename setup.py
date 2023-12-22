@@ -7,7 +7,7 @@ setuptools.setup(
     name="cabrillo",
     version="0.1.1",
     author="thxo",
-    author_email="thx@uw.edu",
+    author_email="thxo@riseup.net",
     description="A Python library to parse Cabrillo-format amateur radio "
                 "contest logs.",
     long_description=long_description,

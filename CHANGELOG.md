@@ -9,6 +9,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 - Add GRID-LOCATOR field. (#11)
 
+### Fixed
+- Fix authorship information.
+
 ## [0.1.1]
 ### Changes
 - Add new Cabrillo fields. (#9)
