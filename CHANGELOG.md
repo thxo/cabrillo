@@ -8,9 +8,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 ### Added
 - Add GRID-LOCATOR field. (#11)
+- Add more examples in README.
 
 ### Fixed
-- Fix authorship information.
+- Fix setup.py authorship information.
 
 ## [0.1.1]
 ### Changes

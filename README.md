@@ -39,13 +39,27 @@ END-OF-LOG:
 cab = parse_log_text(cabrillo_text)
 ```
 
-## Ignoring malorder
+## Construct a Log
 
-Cabrillo logs must be time-sorted. If you want to read files that are
-not so sorted, but other than that are Cabrillo files, you can do so by
-adding a keyword argument `ignore_order=False` to either `parse_log_file`
-or `parse_log_text`. If you do that, the resulting Cabrillo object
-will refuse to generate (potentially non-)Cabrillo output.
+For an up-to-date list of attributes to use in constructing objects
+manually, see `cabrillo/cabrillo.py` and `cabrillo/qso.py`. This is helpful if your software maintains QSOs in a different database format and you are just exporting logs in the very end. For example:
+
+```python
+>>> from cabrillo import QSO, Cabrillo
+>>> from datetime import datetime
+# >>> help(QSO)
+# >>> help(Cabrillo)
+>>> qso1 = QSO('14313', 'PH', datetime.strptime('May 30 2018 10:15PM', '%b %d %Y %I:%M%p'), 'KX0XXX', 'KX9XXX', de_exch=['59', '10', 'CO'], dx_exch=['44', '20', 'IN'], t=None)
+>>> cab = Cabrillo(callsign='KX0XXX', email='kx0xxx@example.com', soapbox=['Son of a gun!'])
+>>> print(cab.text())
+START-OF-LOG: 3.0
+CALLSIGN: KX0XXX
+EMAIL: kx0xxx@example.com
+CREATED-BY: cabrillo (Python)
+SOAPBOX: Son of a gun!
+END-OF-LOG:
+
+```
 
 ## Matching Two QSOs in Contest Scoring
 
@@ -66,87 +80,43 @@ False
 >>> qso1.match_against(qso2, max_time_delta=30, check_exch=True, check_band=True)
 ```
 
-# Attributes
+# Tips
 
-Use these attributes to access and construct individual objects.
+## Ignoring Malorder
 
-```python
-class Cabrillo(builtins.object)
- |  Cabrillo(check_categories=True, **d)
- |  
- |  Representation of a Cabrillo log file.
- |  
- |  Attributes:
- |        version: The only supported version is '3.0'.
- |        callsign: Call sign of station.
- |        contest: Contest identification.
- |        category_assisted: One of CATEGORY_ASSISTED.
- |        category_band: One of CATEGORY_BAND.
- |        category_mode: One of CATEGORY_MODE.
- |        category_operator: One of CATEGORY_OPERATOR.
- |        category_power: One of CATEGORY-POWER.
- |        category_station: One of CATEGORY-STATION.
- |        category_time: One of CATEGORY-TIME.
- |        category_transmitter: One of CATEGORY-TRANSMITTER. Optional for
- |          multi-op.
- |        category_overlay: One of CATEGORY-OVERLAY.
- |        certificate: If certificate by post. Boolean.
- |        claimed_score: Claimed score in int.
- |        club: Club represented.
- |        created_by: Software responsible for creating this log file.
- |          Optional, defaults to "cabrillo (Python)".
- |        email: Email address of the submitter.
- |        location: State/section/ID depending on contest.
- |        name: Log submitter's name.
- |        address: Mailing address, as a list, one entry per line.
- |        address_city: Optional granular address info.
- |        address_state_province: Optional granular address info.
- |        address_postalcode: Optional granular address info.
- |        address_country: Optional granular address info.
- |        operators: List of operators' callsigns.
- |        offtime: List containing two datetime objects denoting start and
- |          end of off-time.
- |        soapbox: List of lines of soapbox text.
- |        qso: List of all QSO objects, including ignored QSOs.
- |        valid_qso: List of all valid QSOs (excluding X-QSO) (read-only).
- |        x_qso: List of QSO objects for ignored QSOs (X-QSO only) (read-only).
- |        x_anything: An ordered mapping of ignored/unknown attributes of the Cabrillo file.
-```
+Cabrillo logs must be time-sorted. If you want to read files that are
+not so sorted, but other than that are Cabrillo files, you can do so by
+adding a keyword argument `ignore_order=False` to either `parse_log_file`
+or `parse_log_text`. If you do that, the resulting Cabrillo object
+will refuse to generate (potentially non-)Cabrillo output.
 
-```python
- class QSO(builtins.object)
- |  QSO(freq, mo, date, de_call, dx_call, de_exch=[], dx_exch=[], t=None, valid=True)
- |  
- |  Representation of a single QSO.
- |  
- |  Attributes:
- |      freq: Frequency in kHz in str representation.
- |      mo: Transmission mode of QSO.
- |      date: UTC time as datetime.datetime object.
- |      de_call: Sent callsign.
- |      de_exch: Sent exchange. List, first item is RST, second tends to be context exchange.
- |      dx_call: Received callsign.
- |      dx_exch: Received exchange. List, first item is RST, second tends to be context exchange.
- |      t: Transmitter ID for multi-transmitter categories in int. 0/1.
- |      valid: True for QSO that counts, False for an X-QSO.
-```
+## Contributing
 
-## Contributors
-
-Pull requests are appreciated!
-
-The following instructions show how to obtain the sourcecode and execute the tests.
-They assume Python 3.3 or later: 
+Pull requests are appreciated! Please test your changes using `pytest`.
 
 ```sh
-git clone https://github.com/thxo/cabrillo.git
-cd cabrillo
-python3 -m venv python-venv
-source python-venv/bin/activate
-pip install -r requirements_test.txt
-python -m pytest --cov-report term-missing --cov cabrillo -v
-```
+# Activate a virtual environment using your favorite tool.
+$ pip -r requirements_test.txt
+$ pytest --cov-report term-missing --cov
+*snip*
+---------- coverage: platform linux, python 3.12.1-final-0 -----------
+Name                       Stmts   Miss  Cover   Missing
+--------------------------------------------------------
+cabrillo/__init__.py           4      0   100%
+cabrillo/cabrillo.py          60      0   100%
+cabrillo/data.py              44      0   100%
+cabrillo/errors.py             3      0   100%
+cabrillo/parser.py            62      0   100%
+cabrillo/qso.py               59      0   100%
+tests/path_helper.py           6      0   100%
+tests/test_cabrillo.py        62      0   100%
+tests/test_parser_log.py      89      0   100%
+tests/test_parser_qso.py      51      0   100%
+tests/test_qso.py            100      0   100%
+--------------------------------------------------------
+TOTAL                        540      0   100%
 
-On a Windows machine, using `cmd.exe`, substitute
-`python-venv/Scripts/activate` for
-`source python-venv/bin/activate`.
+
+====================================================================== 24 passed in 0.21s =======================================================================
+
+```
