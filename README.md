@@ -50,15 +50,18 @@ manually, see `cabrillo/cabrillo.py` and `cabrillo/qso.py`. This is helpful if y
 # >>> help(QSO)
 # >>> help(Cabrillo)
 >>> qso1 = QSO('14313', 'PH', datetime.strptime('May 30 2018 10:15PM', '%b %d %Y %I:%M%p'), 'KX0XXX', 'KX9XXX', de_exch=['59', '10', 'CO'], dx_exch=['44', '20', 'IN'], t=None)
->>> cab = Cabrillo(callsign='KX0XXX', email='kx0xxx@example.com', soapbox=['Son of a gun!'])
+>>> cab = Cabrillo(callsign='KX0XXX', email='kx0xxx@example.com', grid_locator='AB12', soapbox=['Son of a gun!', 'DX IS!'])
+>>> cab.qso.append(qso1)
 >>> print(cab.text())
 START-OF-LOG: 3.0
 CALLSIGN: KX0XXX
 EMAIL: kx0xxx@example.com
+GRID-LOCATOR: AB12
 CREATED-BY: cabrillo (Python)
 SOAPBOX: Son of a gun!
+SOAPBOX: DX IS!
+QSO: 14313 PH 2018-05-30 2215 KX0XXX 59 10 CO KX9XXX 44 20 IN
 END-OF-LOG:
-
 ```
 
 ## Matching Two QSOs in Contest Scoring
