@@ -108,6 +108,23 @@ def parse_log_text(text, ignore_unknown_key=False, check_categories=True, ignore
             results.setdefault(inverse_keywords[key], list()).extend(value.replace(',', ' ').split())
         elif key in ['ADDRESS', 'SOAPBOX']:
             results.setdefault(inverse_keywords[key], list()).append(value)
+        elif key == 'GRID-LOCATOR':
+            # Uppercase the grid locator to be consistent.
+            value = value.upper().strip()
+
+            # A Maidenhead grid locator is 4 or 6 characters long. We only validate this
+            # to the extent that the docs prescribe, which is aann or aannbb.
+            pattern = r'^[A-Z]{2}\d{2}[A-Z]{0,2}$'
+            if not value:
+                # Empty is fine
+                pass
+            elif len(value) not in [4, 6] or not re.match(pattern, value):
+                raise InvalidLogException(
+                    'Improperly formatted grid locator "{}". '
+                    'Must look like AA## or AA##BB.'.format(value)
+                )
+
+            results[inverse_keywords[key]] = value
         elif key in inverse_keywords.keys():
             results[inverse_keywords[key]] = value
         elif key.startswith('X-'):

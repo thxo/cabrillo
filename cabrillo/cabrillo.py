@@ -32,6 +32,8 @@ class Cabrillo:
             Optional, defaults to "cabrillo (Python)".
           email: Email address of the submitter.
           location: State/section/ID depending on contest.
+          grid_locator: Maidenhead Grid Square of the station location,
+            e.g., JO15 or FN42EB.
           name: Name.
           address: Mailing address in list, each entry is each line.
           address_city: Optional granular address info.

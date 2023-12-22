@@ -100,6 +100,24 @@ def test_parse_unknown_keyword():
     assert parse_log_text(bad_text, ignore_unknown_key=True)
 
 
+def test_parse_grid_locator():
+    """Test that the GRID-LOCATOR keyword is parsed correctly."""
+    empty = ("", "START-OF-LOG: 3.0\nGRID-LOCATOR:")
+    short = ("FK42", "START-OF-LOG: 3.0\nGRID-LOCATOR: FK42")
+    long = ("FK42AA", "START-OF-LOG: 3.0\nGRID-LOCATOR: FK42aA")
+    spaces = ("FK42AA", "START-OF-LOG: 3.0\nGRID-LOCATOR:    FK42AA   ")
+
+    for grid, text in [empty, short, long, spaces]:
+        cab = parse_log_text(text)
+        assert cab.grid_locator == grid
+
+    bad_grids = ["00aa", "fk4200", "fk42AAA", "00fk42", "fk42a", "fk42a0"]
+    for grid in bad_grids:
+        bad_text = "START-OF-LOG: 3.0\nGRID-LOCATOR: {}".format(grid)
+        with pytest.raises(InvalidLogException) as _:
+            parse_log_text(bad_text)
+
+
 def test_parse_bad():
     """Test a badly delimited log."""
     bad_text = 'START-OF-LOG: 3.0\nblah'
