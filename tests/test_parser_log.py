@@ -26,6 +26,7 @@ def test_parse_cqwpx():
         assert cab.category_mode == 'CW'
         assert cab.category_transmitter == 'ONE'
         assert cab.category_overlay == 'TB-WIRES'
+        assert cab.category_station == 'DISTRIBUTED'
         assert cab.claimed_score == 24
         assert cab.club == 'Yankee Clipper Contest Club'
         assert cab.location == 'WMA'
