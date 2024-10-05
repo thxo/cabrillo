@@ -1,5 +1,8 @@
-cabrillo [![Build Status](https://travis-ci.com/thxo/cabrillo.svg?branch=master)](https://travis-ci.com/thxo/cabrillo)
+cabrillo
 ---------------------
+
+![build workflow badge](https://github.com/thxo/cabrillo/actions/workflows/test.yml/badge.svg)
+
 A Python library to parse Cabrillo-format amateur radio contest logs, with no external dependencies.
 
 # Getting Started
