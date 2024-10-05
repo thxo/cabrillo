@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
+- Add new CATEGORY additions to the Cabrillo spec since November 2020.
+
 ### Fixed
 - Replace stale Travis CI workflow badge with GitHub action's.
 
