@@ -11,7 +11,7 @@ import collections
 CATEGORY_ASSISTED = ['ASSISTED', 'NON-ASSISTED']
 CATEGORY_BAND = ['ALL', '160M', '80M', '40M', '20M', '15M', '10M', '6M', '4M',
                  '2M', '222', '432', '902', '1.2G', '2.3G', '3.4G', '5.7G',
-                 '10G', '24G', '47G', '75G', '123G', '134G', '241G', 'LIGHT',
+                 '10G', '24G', '47G', '75G', '122G', '123G', '134G', '241G', 'LIGHT',
                  'VHF-3-BAND', 'VHF-FM-ONLY']
 CATEGORY_MODE = ['SSB', 'CW', 'RTTY', 'FM', 'MIXED', 'DIGI']
 CATEGORY_OPERATOR = ['SINGLE-OP', 'MULTI-OP', 'CHECKLOG']
@@ -368,8 +368,8 @@ VALID_CATEGORIES_MAP = dict(category_assisted=CATEGORY_ASSISTED,
                             category_overlay=CATEGORY_OVERLAY)
 VALID_QSO_CATEGORIES = ['1800', '3500', '7000', '14000', '21000', '28000',
                         '50', '70', '144', '222', '432', '902', '1.2G', '2.3G',
-                        '3.4G', '5.7G', '10G', '24G', '47G', '75G', '123G',
-                        '134G', '241G', 'LIGHT']
+                        '3.4G', '5.7G', '10G', '24G', '47G', '75G', '122G',
+                        '123G', '134G', '241G', 'LIGHT']
 FREQ_RANGES = {'1800': (1800, 2000),
                '3500': (3500, 4000),
                '7000': (7000, 7300),
