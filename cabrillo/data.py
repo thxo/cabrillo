@@ -356,7 +356,8 @@ OUTPUT_KEYWORD_MAP['created_by'] = 'CREATED-BY'
 OUTPUT_KEYWORD_MAP['soapbox'] = 'SOAPBOX'
 
 # Keywords we accept on input.
-KEYWORD_MAP = dict(OUTPUT_KEYWORD_MAP, version='START-OF-LOG', qso='QSO', x_qso='X-QSO')
+KEYWORD_MAP = dict(OUTPUT_KEYWORD_MAP, version='START-OF-LOG',
+                   qso='QSO', x_qso='X-QSO')
 
 VALID_CATEGORIES_MAP = dict(category_assisted=CATEGORY_ASSISTED,
                             category_band=CATEGORY_BAND,

@@ -3,9 +3,10 @@
 from cabrillo import data
 from cabrillo.errors import InvalidQSOException
 
+
 def frequency_to_band(freq):
     """Converts numeric frequency in kHz to band designation.
-    
+
     The Cabrillo specification allows the usage of exact frequency in lieu of
     band category. For example, one may use 14313 to denote the exact
     frequency, while the other operator may log simply as 14000 to denote 20m.
@@ -167,6 +168,6 @@ class QSO:
     def __eq__(self, other):
         """Define equal QSO."""
         return self.freq == other.freq and self.mo == other.mo and self.date \
-               == other.date and self.de_call == other.de_call and \
-               self.dx_call == other.dx_call and self.de_exch == \
-               other.de_exch and self.dx_exch == other.dx_exch
+            == other.date and self.de_call == other.de_call and \
+            self.dx_call == other.dx_call and self.de_exch == \
+            other.de_exch and self.dx_exch == other.dx_exch

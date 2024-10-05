@@ -59,10 +59,12 @@ def test_no_exchange():
     qso = parse_qso('7005 CW 2009-05-30 0002 AA1ZZZ 599 S50A 599 1', False)
     assert qso.t == 1
 
+
 def test_invalid_qso():
     """Test a QSO line that is far too short."""
     with pytest.raises(InvalidQSOException) as _:
         parse_qso('7005 CW 2009-05-30 1230 S50A', True)
+
 
 def test_yarc_qso():
     """Test the YARC QSO Party which has multiple exchanges."""

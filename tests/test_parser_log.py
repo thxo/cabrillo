@@ -45,6 +45,7 @@ def test_parse_cqwpx():
             correct_lines = infile.read()
         assert out_lines == correct_lines
 
+
 def test_parse_iaru():
     cab = parse_log_file('tests/iaru.log')
     assert cab.operators == ['@DJ3EI']
@@ -56,13 +57,15 @@ def test_parse_iaru():
     assert 1 == len(cab.x_qso)
     assert cab.x_qso[0].dx_exch == ["599", "REF"]
 
+
 def test_badorder():
     with pytest.raises(InvalidLogException) as _:
         parse_log_file('tests/badorder.log')
     cab_unordered = parse_log_file('tests/badorder.log', ignore_order=True)
     with pytest.raises(InvalidLogException) as _:
         cab_unordered.text()
-        
+
+
 def test_parse_yarc():
     """Test a log file from the YARC QSO Party."""
     cab = parse_log_file('tests/YARC.log')

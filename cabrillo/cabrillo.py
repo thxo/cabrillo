@@ -8,6 +8,7 @@ import io
 from cabrillo import data
 from cabrillo.errors import InvalidLogException
 
+
 class Cabrillo:
     """Representation of a Cabrillo log file.
 
@@ -90,8 +91,10 @@ class Cabrillo:
                         'Got {} for {} but expecting one of {}.'.format(
                             value, attribute, candidates))
 
-    valid_qso = property(fget=lambda self: [qso for qso in self.qso if qso.valid])
-    x_qso = property(fget=lambda self: [qso for qso in self.qso if not qso.valid])
+    valid_qso = property(fget=lambda self: [
+                         qso for qso in self.qso if qso.valid])
+    x_qso = property(fget=lambda self: [
+                     qso for qso in self.qso if not qso.valid])
 
     def append_qso(self, qso, ignore_order):
         """Add one QSO to the end of this log."""
@@ -139,7 +142,8 @@ class Cabrillo:
             raise InvalidLogException("Only Cabrillo v3 supported.")
 
         if self.ignore_order:
-            raise InvalidLogException("Refuse produce output in ignore_ordered mode as Cabrillo logs need to be ordered time-wise.")
+            raise InvalidLogException(
+                "Refuse produce output in ignore_ordered mode as Cabrillo logs need to be ordered time-wise.")
 
         print('START-OF-LOG: {}'.format(self.version), file=file)
 
@@ -149,7 +153,8 @@ class Cabrillo:
             if value is not None:
                 if attribute == 'certificate':
                     # Convert boolean to YES/NO.
-                    print('{}: {}'.format(keyword, 'YES' if value else 'NO'), file=file)
+                    print('{}: {}'.format(
+                        keyword, 'YES' if value else 'NO'), file=file)
                 elif attribute in ['address', 'soapbox']:
                     # Process multi-line attributes.
                     for x in value:

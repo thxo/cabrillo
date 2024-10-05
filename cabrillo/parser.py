@@ -8,6 +8,7 @@ from cabrillo.data import KEYWORD_MAP
 import collections
 import re
 
+
 def parse_qso(text, valid):
     """Parse a single line of QSO into a QSO object.
 
@@ -103,9 +104,11 @@ def parse_log_text(text, ignore_unknown_key=False, check_categories=True, ignore
         elif key in ['QSO', 'X-QSO']:
             # Do not split QSO and X-QSO case here.
             # By not splitting, we keep timewise order for QSOs that have the same timestamp.
-            results.setdefault("qso", []).append(parse_qso(value, key == "QSO"))
+            results.setdefault("qso", []).append(
+                parse_qso(value, key == "QSO"))
         elif key == 'OPERATORS':
-            results.setdefault(inverse_keywords[key], list()).extend(value.replace(',', ' ').split())
+            results.setdefault(inverse_keywords[key], list()).extend(
+                value.replace(',', ' ').split())
         elif key in ['ADDRESS', 'SOAPBOX']:
             results.setdefault(inverse_keywords[key], list()).append(value)
         elif key == 'GRID-LOCATOR':
