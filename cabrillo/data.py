@@ -1,7 +1,8 @@
 """Constants from the Cabrillo specification.
 
-Based on the Cabrillo specification available at
-https://wwrof.org/cabrillo/cabrillo-specification-v3/
+Based on the Cabrillo specification available at:
+    https://wwrof.org/cabrillo/
+
 All values below should remain upper case.
 """
 
@@ -19,7 +20,7 @@ CATEGORY_STATION = ['FIXED', 'MOBILE', 'PORTABLE', 'ROVER', 'ROVER-LIMITED',
                     'ROVER-UNLIMITED', 'EXPEDITION', 'HQ', 'SCHOOL', 'EXPLORER']
 CATEGORY_TIME = ['6-HOURS', '8-HOURS', '12-HOURS', '24-HOURS']
 CATEGORY_TRANSMITTER = ['ONE', 'TWO', 'LIMITED', 'UNLIMITED', 'SWL']
-CATEGORY_OVERLAY = ['CLASSIC', 'ROOKIE', 'TB-WIRES', 'YOUTH', 'NOVICE-TECH', 'OVER-50']
+CATEGORY_OVERLAY = ['CLASSIC', 'ROOKIE', 'TB-WIRES', 'YOUTH', 'NOVICE-TECH', 'OVER-50', 'YL']
 
 CONTEST = [
     '10-10-SPRINT',
