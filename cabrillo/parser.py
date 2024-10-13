@@ -81,60 +81,61 @@ def parse_log_text(text, ignore_unknown_key=False, check_categories=True, ignore
 
     key_colon_value = re.compile(r'^\s*([^:]+?)\s*:\s*(.*?)\s*$')
     for line in text.split('\n'):
-        match = key_colon_value.fullmatch(line)
-        if match:
-            key, value = match.group(1), match.group(2)
-        else:
-            raise InvalidLogException('Line does not start with `:`-delimited key, '
-                                      'got `{}`.'.format(line))
+        if line.strip():
+            match = key_colon_value.fullmatch(line)
+            if match:
+                key, value = match.group(1), match.group(2)
+            else:
+                raise InvalidLogException('Line does not start with `:`-delimited key, '
+                                        'got `{}`.'.format(line))
 
-        if key == 'END-OF-LOG':
-            break
-        elif key == 'CLAIMED-SCORE':
-            try:
-                results[inverse_keywords[key]] = int(value)
-            except ValueError:
-                raise InvalidLogException('Improperly formatted claimed '
-                                          'score "{}". Per specification the'
-                                          ' score, if given, must be an '
-                                          'integer without any formatting, '
-                                          'like "12345678".'.format(value))
-        elif key == 'CERTIFICATE':
-            results[inverse_keywords[key]] = value == 'YES'
-        elif key in ['QSO', 'X-QSO']:
-            # Do not split QSO and X-QSO case here.
-            # By not splitting, we keep timewise order for QSOs that have the same timestamp.
-            results.setdefault("qso", []).append(
-                parse_qso(value, key == "QSO"))
-        elif key == 'OPERATORS':
-            results.setdefault(inverse_keywords[key], list()).extend(
-                value.replace(',', ' ').split())
-        elif key in ['ADDRESS', 'SOAPBOX']:
-            results.setdefault(inverse_keywords[key], list()).append(value)
-        elif key == 'GRID-LOCATOR':
-            # Uppercase the grid locator to be consistent.
-            value = value.upper().strip()
+            if key == 'END-OF-LOG':
+                break
+            elif key == 'CLAIMED-SCORE':
+                try:
+                    results[inverse_keywords[key]] = int(value) if values else 0
+                except ValueError:
+                    raise InvalidLogException('Improperly formatted claimed '
+                                            'score "{}". Per specification the'
+                                            ' score, if given, must be an '
+                                            'integer without any formatting, '
+                                            'like "12345678".'.format(value))
+            elif key == 'CERTIFICATE':
+                results[inverse_keywords[key]] = value == 'YES'
+            elif key in ['QSO', 'X-QSO']:
+                # Do not split QSO and X-QSO case here.
+                # By not splitting, we keep timewise order for QSOs that have the same timestamp.
+                results.setdefault("qso", []).append(
+                    parse_qso(value, key == "QSO"))
+            elif key == 'OPERATORS':
+                results.setdefault(inverse_keywords[key], list()).extend(
+                    value.replace(',', ' ').split())
+            elif key in ['ADDRESS', 'SOAPBOX']:
+                results.setdefault(inverse_keywords[key], list()).append(value)
+            elif key == 'GRID-LOCATOR':
+                # Uppercase the grid locator to be consistent.
+                value = value.upper().strip()
 
-            # A Maidenhead grid locator is 4 or 6 characters long. We only validate this
-            # to the extent that the docs prescribe, which is aann or aannbb.
-            pattern = r'^[A-Z]{2}\d{2}[A-Z]{0,2}$'
-            if not value:
-                # Empty is fine
-                pass
-            elif len(value) not in [4, 6] or not re.match(pattern, value):
-                raise InvalidLogException(
-                    'Improperly formatted grid locator "{}". '
-                    'Must look like AA## or AA##BB.'.format(value)
-                )
+                # A Maidenhead grid locator is 4 or 6 characters long. We only validate this
+                # to the extent that the docs prescribe, which is aann or aannbb.
+                pattern = r'^[A-Z]{2}\d{2}[A-Z]{0,2}$'
+                if not value:
+                    # Empty is fine
+                    pass
+                elif len(value) not in [4, 6] or not re.match(pattern, value):
+                    raise InvalidLogException(
+                        'Improperly formatted grid locator "{}". '
+                        'Must look like AA## or AA##BB.'.format(value)
+                    )
 
-            results[inverse_keywords[key]] = value
-        elif key in inverse_keywords.keys():
-            results[inverse_keywords[key]] = value
-        elif key.startswith('X-'):
-            # We keep the order that we were given.
-            results['x_anything'][key] = value
-        elif not ignore_unknown_key:
-            raise InvalidLogException("Unknown key {} read.".format(key))
+                results[inverse_keywords[key]] = value
+            elif key in inverse_keywords.keys():
+                results[inverse_keywords[key]] = value
+            elif key.startswith('X-'):
+                # We keep the order that we were given.
+                results['x_anything'][key] = value
+            elif not ignore_unknown_key:
+                raise InvalidLogException("Unknown key {} read.".format(key))
 
     return Cabrillo(check_categories=check_categories, ignore_order=ignore_order, **results)
 
