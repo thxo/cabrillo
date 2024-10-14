@@ -97,7 +97,7 @@ def parse_log_text(text, ignore_unknown_key=False, check_categories=True, ignore
             break
         elif key == 'CLAIMED-SCORE':
             try:
-                results[inverse_keywords[key]] = int(value)
+                results[inverse_keywords[key]] = int(value.strip() if value.strip() else 0)
             except ValueError:
                 raise InvalidLogException('Improperly formatted claimed '
                                           'score "{}". Per specification the'

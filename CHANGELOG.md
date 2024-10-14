@@ -8,6 +8,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## Unreleased
 ### Fixed
 - Allow empty lines in logs.
+- Handle empty claimed score value as 0. 
 
 ## [0.2.0]
 ### Added
