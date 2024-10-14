@@ -62,12 +62,14 @@ def parse_log_text(text, ignore_unknown_key=False, check_categories=True, ignore
 
     Arguments:
         text: str of log
-        check_categories: Check if categories, if given, exist in the
-            Cabrillo specification.
         ignore_unknown_key: Boolean denoting whether if unknown and non X-
             attributes should be ignored if found in long. Otherwise,
             an InvalidLogException will be raised. Defaults to False
             (which enforces valid keywords).
+        check_categories: Check if categories, if given, exist in the
+            Cabrillo specification.
+        ignore_order: Cabrillo logs need to be ordered time-wise.
+                Whether to ignore violations on input and disable output.
 
     Returns:
         cabrillo.Cabrillo
