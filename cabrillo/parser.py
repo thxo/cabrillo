@@ -81,6 +81,11 @@ def parse_log_text(text, ignore_unknown_key=False, check_categories=True, ignore
 
     key_colon_value = re.compile(r'^\s*([^:]+?)\s*:\s*(.*?)\s*$')
     for line in text.split('\n'):
+        # Provide for empty lines. This technically should not happen
+        # but not all software is perfect.
+        if not line.strip():
+            continue
+
         match = key_colon_value.fullmatch(line)
         if match:
             key, value = match.group(1), match.group(2)
