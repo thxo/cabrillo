@@ -107,12 +107,12 @@ def parse_log_text(text, ignore_unknown_key=False, check_categories=True, ignore
                                           'integer without any formatting, '
                                           'like "12345678".'.format(value))
         elif key == 'CERTIFICATE':
-            results[inverse_keywords[key]] = value == 'YES'
+            results[inverse_keywords[key]] = value.upper() == 'YES'
         elif key in ['QSO', 'X-QSO']:
             # Do not split QSO and X-QSO case here.
             # By not splitting, we keep timewise order for QSOs that have the same timestamp.
             results.setdefault("qso", []).append(
-                parse_qso(value, key == "QSO"))
+                parse_qso(value, key.upper() == "QSO"))
         elif key == 'OPERATORS':
             results.setdefault(inverse_keywords[key], list()).extend(
                 value.replace(',', ' ').split())
@@ -122,23 +122,28 @@ def parse_log_text(text, ignore_unknown_key=False, check_categories=True, ignore
             # Uppercase the grid locator to be consistent.
             value = value.upper().strip()
 
+            if not value:
+                # TODO: In a future version, make this properly return None instead.
+                results[inverse_keywords[key]] = ''
+                continue
+
             # A Maidenhead grid locator is 4 or 6 characters long. We only validate this
             # to the extent that the docs prescribe, which is aann or aannbb.
             pattern = r'^[A-Z]{2}\d{2}[A-Z]{0,2}$'
-            if not value:
-                # Empty is fine
-                pass
-            elif len(value) not in [4, 6] or not re.match(pattern, value):
+            if len(value) not in [4, 6] or not re.match(pattern, value):
                 raise InvalidLogException(
                     'Improperly formatted grid locator "{}". '
                     'Must look like AA## or AA##BB.'.format(value)
                 )
-
             results[inverse_keywords[key]] = value
         elif key in inverse_keywords.keys():
+            if not value.strip():
+                continue
             results[inverse_keywords[key]] = value
         elif key.startswith('X-'):
             # We keep the order that we were given.
+            if not value.strip():
+                continue
             results['x_anything'][key] = value
         elif not ignore_unknown_key:
             raise InvalidLogException("Unknown key {} read.".format(key))
