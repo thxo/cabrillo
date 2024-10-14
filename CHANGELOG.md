@@ -5,10 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
-### Fixed
+## [0.2.1]
+### Changes
 - Allow empty lines in logs.
-- Handle empty claimed score value as 0. 
+- Handle empty claimed score value as 0. (by report in #14)
+- Generally attempt to make empty values more robust.
 
 ## [0.2.0]
 ### Added
