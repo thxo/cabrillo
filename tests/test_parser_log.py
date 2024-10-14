@@ -46,6 +46,9 @@ def test_parse_cqwpx():
             correct_lines = infile.read()
         assert out_lines == correct_lines
 
+def test_parse_cqwpx_claimed_score_empty():
+    cab = parse_log_file('tests/CQWPX_claimed_score_empty.log')
+    assert 0 == cab.claimed_score
 
 def test_parse_iaru():
     cab = parse_log_file('tests/iaru.log')

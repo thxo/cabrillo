@@ -62,12 +62,14 @@ def parse_log_text(text, ignore_unknown_key=False, check_categories=True, ignore
 
     Arguments:
         text: str of log
-        check_categories: Check if categories, if given, exist in the
-            Cabrillo specification.
         ignore_unknown_key: Boolean denoting whether if unknown and non X-
             attributes should be ignored if found in long. Otherwise,
             an InvalidLogException will be raised. Defaults to False
             (which enforces valid keywords).
+        check_categories: Check if categories, if given, exist in the
+            Cabrillo specification.
+        ignore_order: Cabrillo logs need to be ordered time-wise.
+                Whether to ignore violations on input and disable output.
 
     Returns:
         cabrillo.Cabrillo
@@ -81,6 +83,11 @@ def parse_log_text(text, ignore_unknown_key=False, check_categories=True, ignore
 
     key_colon_value = re.compile(r'^\s*([^:]+?)\s*:\s*(.*?)\s*$')
     for line in text.split('\n'):
+        # Provide for empty lines. This technically should not happen
+        # but not all software is perfect.
+        if not line.strip():
+            continue
+
         match = key_colon_value.fullmatch(line)
         if match:
             key, value = match.group(1), match.group(2)
@@ -92,7 +99,7 @@ def parse_log_text(text, ignore_unknown_key=False, check_categories=True, ignore
             break
         elif key == 'CLAIMED-SCORE':
             try:
-                results[inverse_keywords[key]] = int(value)
+                results[inverse_keywords[key]] = int(value.strip() if value.strip() else 0)
             except ValueError:
                 raise InvalidLogException('Improperly formatted claimed '
                                           'score "{}". Per specification the'
@@ -100,12 +107,12 @@ def parse_log_text(text, ignore_unknown_key=False, check_categories=True, ignore
                                           'integer without any formatting, '
                                           'like "12345678".'.format(value))
         elif key == 'CERTIFICATE':
-            results[inverse_keywords[key]] = value == 'YES'
+            results[inverse_keywords[key]] = value.upper() == 'YES'
         elif key in ['QSO', 'X-QSO']:
             # Do not split QSO and X-QSO case here.
             # By not splitting, we keep timewise order for QSOs that have the same timestamp.
             results.setdefault("qso", []).append(
-                parse_qso(value, key == "QSO"))
+                parse_qso(value, key.upper() == "QSO"))
         elif key == 'OPERATORS':
             results.setdefault(inverse_keywords[key], list()).extend(
                 value.replace(',', ' ').split())
@@ -115,23 +122,28 @@ def parse_log_text(text, ignore_unknown_key=False, check_categories=True, ignore
             # Uppercase the grid locator to be consistent.
             value = value.upper().strip()
 
+            if not value:
+                # TODO: In a future version, make this properly return None instead.
+                results[inverse_keywords[key]] = ''
+                continue
+
             # A Maidenhead grid locator is 4 or 6 characters long. We only validate this
             # to the extent that the docs prescribe, which is aann or aannbb.
             pattern = r'^[A-Z]{2}\d{2}[A-Z]{0,2}$'
-            if not value:
-                # Empty is fine
-                pass
-            elif len(value) not in [4, 6] or not re.match(pattern, value):
+            if len(value) not in [4, 6] or not re.match(pattern, value):
                 raise InvalidLogException(
                     'Improperly formatted grid locator "{}". '
                     'Must look like AA## or AA##BB.'.format(value)
                 )
-
             results[inverse_keywords[key]] = value
         elif key in inverse_keywords.keys():
+            if not value.strip():
+                continue
             results[inverse_keywords[key]] = value
         elif key.startswith('X-'):
             # We keep the order that we were given.
+            if not value.strip():
+                continue
             results['x_anything'][key] = value
         elif not ignore_unknown_key:
             raise InvalidLogException("Unknown key {} read.".format(key))
