@@ -17,7 +17,7 @@ def frequency_to_band(freq):
         >>> frequency_to_band('14200')
         '14000'
         >>> frequency_to_band('LIGHT')
-        'LIGHT
+        'LIGHT'
 
     Arguments:
         freq (str): The frequency found in the log.
@@ -33,6 +33,38 @@ def frequency_to_band(freq):
         return freq
 
     for name, range in data.FREQ_RANGES.items():
+        if range[0] <= freq_num <= range[1]:
+            return name
+
+    return freq
+
+
+def frequency_to_band_m(freq):
+    """Converts numeric frequency in kHz to band in meters
+
+    refer to "frequency_to_band"
+    
+    Example:
+        >>> frequency_to_band_m('14200')
+        '20'
+        >>> frequency_to_band_m('LIGHT')
+        'LIGHT'
+
+    Arguments:
+        freq (str): The frequency found in the log.
+
+    Returns:
+        str: Parsed band designation in band-meters. If the given 
+             frequency is not numeric or not a recognized amateur 
+             band, it will be returned as-is.
+
+    """
+    try:
+        freq_num = int(freq)
+    except ValueError:
+        return freq
+
+    for name, range in data.FREQ_RANGES_BAND.items():
         if range[0] <= freq_num <= range[1]:
             return name
 
