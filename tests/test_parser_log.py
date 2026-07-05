@@ -173,6 +173,57 @@ def test_parse_nonstandard_mode_check_mode_false():
     assert cab.qso[0].mo == 'CW/DIGITAL'
 
 
+def test_parse_laqp():
+    # Non-standard mode CW/Digital
+    with pytest.raises(InvalidQSOException):
+        parse_log_file('tests/LAQP.log')
+    cab = parse_log_file('tests/LAQP.log', check_mode=False)
+    assert cab.callsign == 'KX5XXX'
+    assert cab.contest == 'LA-QSO-PARTY'
+    assert cab.claimed_score == 0  # empty -> 0
+    assert cab.category_station == 'ROVER'
+    assert cab.operators == ['KX5XXX', '@KX5XXX']
+    assert cab.qso[0].mo == 'CW/Digital'
+    assert cab.qso[0].de_exch == ['599', 'BEAU']
+    assert cab.qso[0].dx_exch == ['599', 'ORLE']
+
+
+def test_parse_gb0wr():
+    # Bare 'CATEGORY:' is a DXLog.net vendor extension
+    with pytest.raises(InvalidLogException):
+        parse_log_file('tests/GB0WR.log')
+    cab = parse_log_file('tests/GB0WR.log', ignore_unknown_key=True)
+    assert cab.callsign == 'GB0WR'
+    assert cab.contest == 'IARU-HF'
+    assert cab.grid_locator == 'JO02JI'
+    assert cab.operators == ['G4CWH', 'EI6JK']
+    assert len(cab.qso) == 4
+    # Multi-TX QSOs with transmitter id
+    assert cab.qso[0].t == 0
+    assert cab.qso[0].de_exch == ['599', '27']
+    assert cab.qso[0].dx_exch == ['599', '29']
+    # HQ-station exchange (society abbreviation)
+    assert cab.qso[3].dx_exch == ['599', 'BFRA']
+
+
+def test_parse_i44z():
+    # Multi-TX log with ordering violation between TX streams.
+    with pytest.raises(InvalidLogException):
+        parse_log_file('tests/I44Z.log')
+    cab = parse_log_file('tests/I44Z.log', ignore_order=True)
+    assert cab.callsign == 'I44Z'
+    assert cab.category_transmitter == 'TWO'
+    assert len(cab.qso) == 6
+    # TX0 (CW, t=0) and TX1 (PH, t=1) interleaved
+    assert cab.qso[2].t == 0
+    assert cab.qso[2].mo == 'CW'
+    assert cab.qso[3].t == 1
+    assert cab.qso[3].mo == 'PH'
+    # Output refused in ignore_order mode
+    with pytest.raises(InvalidLogException):
+        cab.text()
+
+
 def test_parse_bad():
     """Test a badly delimited log."""
     bad_text = 'START-OF-LOG: 3.0\nblah'
