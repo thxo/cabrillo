@@ -166,7 +166,7 @@ class Cabrillo:
                     # Process offtime dates.
                     print('{}: {}'.format(keyword, ' '.join(
                         [x.strftime("%Y-%m-%d %H%M") for x in value])), file=file)
-                elif value and attribute != 'version':
+                elif attribute != 'version':
                     print('{}: {}'.format(keyword, value), file=file)
 
         # Output ignored attributes.

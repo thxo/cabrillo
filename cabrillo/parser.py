@@ -123,8 +123,7 @@ def parse_log_text(text, ignore_unknown_key=False, check_categories=True, ignore
             value = value.upper().strip()
 
             if not value:
-                # TODO: In a future version, make this properly return None instead.
-                results[inverse_keywords[key]] = ''
+                results[inverse_keywords[key]] = None
                 continue
 
             # A Maidenhead grid locator is 4 or 6 characters long. We only validate this
