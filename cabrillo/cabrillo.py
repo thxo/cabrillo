@@ -96,8 +96,10 @@ class Cabrillo:
     x_qso = property(fget=lambda self: [
                      qso for qso in self.qso if not qso.valid])
 
-    def append_qso(self, qso, ignore_order):
+    def append_qso(self, qso, ignore_order=None):
         """Add one QSO to the end of this log."""
+        if ignore_order is None:
+            ignore_order = self.ignore_order
         if 0 < len(self.qso) and qso.date < self.qso[-1].date and not ignore_order:
             # The Cabrillo spec says QSOs need to be ordered by time.
             # The timestamps from Cabrillo's point of view

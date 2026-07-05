@@ -168,3 +168,13 @@ def test_exceptions():
         cab = Cabrillo(callsign='TEST100TEST', version='3.0')
         cab.version = 2.0
         cab.text()
+
+
+def test_append_qso_without_ignore_order():
+    cab = Cabrillo(callsign='W1AW')
+    qso = QSO('14000', 'CW',
+              datetime.strptime('Jan 01 2020 12:00AM', '%b %d %Y %I:%M%p'),
+              'W1AW', 'VA2RAC', de_exch=['599'], dx_exch=['599'])
+    cab.append_qso(qso)
+    assert len(cab.qso) == 1
+    assert cab.qso[0] == qso

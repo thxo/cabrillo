@@ -143,6 +143,17 @@ def test_claimed_score_zero_roundtrip():
     assert cab2.claimed_score == 0
 
 
+def test_offtime_roundtrip():
+    text = "START-OF-LOG: 3.0\nOFFTIME: 2009-05-30 0003 2009-05-30 0500\nEND-OF-LOG:\n"
+    cab = parse_log_text(text)
+    assert cab.offtime == [datetime(2009, 5, 30, 0, 3),
+                           datetime(2009, 5, 30, 5, 0)]
+    output = cab.text()
+    assert 'OFFTIME: 2009-05-30 0003 2009-05-30 0500' in output
+    cab2 = parse_log_text(output)
+    assert cab2.offtime == cab.offtime
+
+
 def test_parse_bad():
     """Test a badly delimited log."""
     bad_text = 'START-OF-LOG: 3.0\nblah'

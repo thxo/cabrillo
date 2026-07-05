@@ -170,3 +170,14 @@ def test_qso_match():
     assert qso1.match_against(qso2) is False
     # Different band, band checking disabled.
     assert qso1.match_against(qso2, check_band=False) is True
+
+
+def test_eq_non_qso():
+    qso = QSO('14313', 'PH',
+              datetime.strptime('May 30 2018 10:10PM', '%b %d %Y %I:%M%p'),
+              'KX0XXX', 'KX9XXX',
+              de_exch=['59', '10', 'CO'], dx_exch=['44', '20', 'IN'])
+    assert qso != None
+    assert qso != "not a qso"
+    assert qso != 42
+    assert qso != ['a', 'list']
