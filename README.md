@@ -102,7 +102,7 @@ Pull requests are appreciated! Please test your changes using `pytest`.
 
 ```sh
 # Activate a virtual environment using your favorite tool.
-$ pip -r requirements_test.txt
+$ pip install -r requirements_test.txt
 $ pytest --cov-report term-missing --cov
 *snip*
 ---------- coverage: platform linux, python 3.12.1-final-0 -----------
