@@ -158,7 +158,8 @@ class QSO:
 
         # Check exchange
         if check_exch:
-            if self.de_exch != other.dx_exch or self.dx_exch != other.de_exch:
+            if [x.upper() for x in self.de_exch] != [x.upper() for x in other.dx_exch] \
+                    or [x.upper() for x in self.dx_exch] != [x.upper() for x in other.de_exch]:
                 return False
 
         # Check band

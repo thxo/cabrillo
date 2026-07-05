@@ -195,6 +195,18 @@ def test_vhf_band_matching():
     assert qso1.match_against(qso2) is True
 
 
+def test_match_against_case_insensitive_exchange():
+    qso1 = QSO('14313', 'PH',
+               datetime.strptime('May 30 2018 10:10PM', '%b %d %Y %I:%M%p'),
+               'KX0XXX', 'KX9XXX',
+               de_exch=['59', 'CT'], dx_exch=['44', 'IN'])
+    qso2 = QSO('14313', 'PH',
+               datetime.strptime('May 30 2018 10:10PM', '%b %d %Y %I:%M%p'),
+               'KX9XXX', 'KX0XXX',
+               de_exch=['44', 'in'], dx_exch=['59', 'ct'])
+    assert qso1.match_against(qso2) is True
+
+
 def test_eq_non_qso():
     qso = QSO('14313', 'PH',
               datetime.strptime('May 30 2018 10:10PM', '%b %d %Y %I:%M%p'),
