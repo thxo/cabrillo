@@ -125,6 +125,15 @@ def test_parse_grid_locator():
             parse_log_text(bad_text)
 
 
+def test_parse_extended_grid_locator():
+    extended_8 = ("FN42EB12", "START-OF-LOG: 3.0\nGRID-LOCATOR: FN42eb12")
+    extended_10 = ("FN42EB12AB", "START-OF-LOG: 3.0\nGRID-LOCATOR: fn42eb12ab")
+
+    for grid, text in [extended_8, extended_10]:
+        cab = parse_log_text(text)
+        assert cab.grid_locator == grid
+
+
 def test_empty_grid_locator_is_none():
     """Test that an empty GRID-LOCATOR is stored as None, not empty string."""
     text = "START-OF-LOG: 3.0\nGRID-LOCATOR:\nEND-OF-LOG:\n"

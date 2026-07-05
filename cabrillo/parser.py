@@ -142,13 +142,13 @@ def parse_log_text(text, ignore_unknown_key=False, check_categories=True, ignore
                 results[inverse_keywords[key]] = None
                 continue
 
-            # A Maidenhead grid locator is 4 or 6 characters long. We only validate this
-            # to the extent that the docs prescribe, which is aann or aannbb.
-            pattern = r'^[A-Z]{2}\d{2}[A-Z]{0,2}$'
-            if len(value) not in [4, 6] or not re.match(pattern, value):
+            # Maidenhead grid locators: 4, 6, 8, or 10 characters.
+            # Pattern: AA## or AA##AA or AA##AA## or AA##AA##AA
+            pattern = r'^[A-Z]{2}\d{2}([A-Z]{2}(\d{2}([A-Z]{2})?)?)?$'
+            if len(value) not in [4, 6, 8, 10] or not re.match(pattern, value):
                 raise InvalidLogException(
                     'Improperly formatted grid locator "{}". '
-                    'Must look like AA## or AA##BB.'.format(value)
+                    'Must look like AA##, AA##AA, AA##AA##, or AA##AA##AA.'.format(value)
                 )
             results[inverse_keywords[key]] = value
         elif key in inverse_keywords.keys():
