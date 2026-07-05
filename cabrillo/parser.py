@@ -9,7 +9,7 @@ import collections
 import re
 
 
-def parse_qso(text, valid):
+def parse_qso(text, valid, check_mode=True):
     """Parse a single line of QSO into a QSO object.
 
     Arguments:
@@ -55,10 +55,12 @@ def parse_qso(text, valid):
                dx_exch=components[int(3 + num_exchanged / 2 + 2):
                                   int(3 + num_exchanged + 1)],
                t=transmitter,
-               valid=valid)
+               valid=valid,
+               check_mode=check_mode)
 
 
-def parse_log_text(text, ignore_unknown_key=False, check_categories=True, ignore_order=False):
+def parse_log_text(text, ignore_unknown_key=False, check_categories=True,
+                   ignore_order=False, check_mode=True):
     """Parse a Cabrillo log in text form.
 
     Attributes in cabrillo.data.KEYWORD_MAP will be parsed accordingly. X-
@@ -117,7 +119,7 @@ def parse_log_text(text, ignore_unknown_key=False, check_categories=True, ignore
             # Do not split QSO and X-QSO case here.
             # By not splitting, we keep timewise order for QSOs that have the same timestamp.
             results.setdefault("qso", []).append(
-                parse_qso(value, key.upper() == "QSO"))
+                parse_qso(value, key.upper() == "QSO", check_mode=check_mode))
         elif key == 'OPERATORS':
             results.setdefault(inverse_keywords[key], list()).extend(
                 value.replace(',', ' ').split())
@@ -166,7 +168,8 @@ def parse_log_text(text, ignore_unknown_key=False, check_categories=True, ignore
     return Cabrillo(check_categories=check_categories, ignore_order=ignore_order, **results)
 
 
-def parse_log_file(filename, ignore_unknown_key=False, check_categories=True, ignore_order=False):
+def parse_log_file(filename, ignore_unknown_key=False, check_categories=True,
+                   ignore_order=False, check_mode=True):
     """Parse a Cabrillo log file.
 
         Attributes in cabrillo.data.KEYWORD_MAP will be parsed accordingly. X-
@@ -181,6 +184,8 @@ def parse_log_file(filename, ignore_unknown_key=False, check_categories=True, ig
                 attributes should be ignored if found in long. Defaults to False.
             ignore_order: Cabrillo logs need to be ordered time-wise.
                 Whether to ignore violations on input and disable output.
+            check_mode: Check if QSO modes are valid per specification.
+                Defaults to True.
 
         Returns:
             cabrillo.Cabrillo
@@ -189,4 +194,5 @@ def parse_log_file(filename, ignore_unknown_key=False, check_categories=True, ig
             InvalidQSOException, InvalidLogException
     """
     with open(filename, 'r', encoding='unicode_escape') as f:
-        return parse_log_text(f.read(), ignore_unknown_key, check_categories, ignore_order)
+        return parse_log_text(f.read(), ignore_unknown_key, check_categories,
+                              ignore_order, check_mode)

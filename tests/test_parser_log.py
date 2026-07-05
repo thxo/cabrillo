@@ -6,7 +6,7 @@ import pytest
 import path_helper
 
 from cabrillo import QSO
-from cabrillo.errors import InvalidLogException
+from cabrillo.errors import InvalidLogException, InvalidQSOException
 from cabrillo.parser import parse_log_file, parse_log_text
 
 
@@ -161,6 +161,16 @@ def test_offtime_roundtrip():
     assert 'OFFTIME: 2009-05-30 0003 2009-05-30 0500' in output
     cab2 = parse_log_text(output)
     assert cab2.offtime == cab.offtime
+
+
+def test_parse_nonstandard_mode_check_mode_false():
+    text = ("START-OF-LOG: 3.0\n"
+            "QSO: 14000 CW/DIGITAL 2020-01-01 0000 W1AW 599 1 VA2RAC 599 4\n"
+            "END-OF-LOG:\n")
+    with pytest.raises(InvalidQSOException):
+        parse_log_text(text)
+    cab = parse_log_text(text, check_mode=False)
+    assert cab.qso[0].mo == 'CW/DIGITAL'
 
 
 def test_parse_bad():
