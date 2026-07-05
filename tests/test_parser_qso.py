@@ -66,6 +66,12 @@ def test_invalid_qso():
         parse_qso('7005 CW 2009-05-30 1230 S50A', True)
 
 
+def test_invalid_date_raises_qso_exception():
+    with pytest.raises(InvalidQSOException) as exc_info:
+        parse_qso('14000 CW 2020-13-45 9999 W1AW 599 1 VA2RAC 599 4', True)
+    assert 'date' in str(exc_info.value).lower() or 'time' in str(exc_info.value).lower()
+
+
 def test_yarc_qso():
     """Test the YARC QSO Party which has multiple exchanges."""
     line = '14000 PH 2018-12-01 1640 W4Y  16 VA     W2Y        19 NY'

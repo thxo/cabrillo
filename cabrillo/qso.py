@@ -199,6 +199,8 @@ class QSO:
 
     def __eq__(self, other):
         """Define equal QSO."""
+        if not isinstance(other, QSO):
+            return NotImplemented
         return self.freq == other.freq and self.mo == other.mo and self.date \
             == other.date and self.de_call == other.de_call and \
             self.dx_call == other.dx_call and self.de_exch == \

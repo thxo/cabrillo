@@ -109,7 +109,7 @@ def test_parse_unknown_keyword():
 
 def test_parse_grid_locator():
     """Test that the GRID-LOCATOR keyword is parsed correctly."""
-    empty = ("", "START-OF-LOG: 3.0\nGRID-LOCATOR:")
+    empty = (None, "START-OF-LOG: 3.0\nGRID-LOCATOR:")
     short = ("FK42", "START-OF-LOG: 3.0\nGRID-LOCATOR: FK42")
     long = ("FK42AA", "START-OF-LOG: 3.0\nGRID-LOCATOR: FK42aA")
     spaces = ("FK42AA", "START-OF-LOG: 3.0\nGRID-LOCATOR:    FK42AA   ")
@@ -123,6 +123,35 @@ def test_parse_grid_locator():
         bad_text = "START-OF-LOG: 3.0\nGRID-LOCATOR: {}".format(grid)
         with pytest.raises(InvalidLogException) as _:
             parse_log_text(bad_text)
+
+
+def test_empty_grid_locator_is_none():
+    """Test that an empty GRID-LOCATOR is stored as None, not empty string."""
+    text = "START-OF-LOG: 3.0\nGRID-LOCATOR:\nEND-OF-LOG:\n"
+    cab = parse_log_text(text)
+    assert cab.grid_locator is None
+
+
+def test_claimed_score_zero_roundtrip():
+    """Test that claimed_score=0 survives roundtrip (not dropped as falsy)."""
+    text = "START-OF-LOG: 3.0\nCLAIMED-SCORE: 0\nEND-OF-LOG:\n"
+    cab = parse_log_text(text)
+    assert cab.claimed_score == 0
+    output = cab.text()
+    assert 'CLAIMED-SCORE: 0' in output
+    cab2 = parse_log_text(output)
+    assert cab2.claimed_score == 0
+
+
+def test_offtime_roundtrip():
+    text = "START-OF-LOG: 3.0\nOFFTIME: 2009-05-30 0003 2009-05-30 0500\nEND-OF-LOG:\n"
+    cab = parse_log_text(text)
+    assert cab.offtime == [datetime(2009, 5, 30, 0, 3),
+                           datetime(2009, 5, 30, 5, 0)]
+    output = cab.text()
+    assert 'OFFTIME: 2009-05-30 0003 2009-05-30 0500' in output
+    cab2 = parse_log_text(output)
+    assert cab2.offtime == cab.offtime
 
 
 def test_parse_bad():

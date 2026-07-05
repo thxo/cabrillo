@@ -41,8 +41,13 @@ def parse_qso(text, valid):
             transmitter = int(components[-1])
 
     # Build QSO
-    date = datetime.strptime('{} {}'.format(components[2], components[3]),
-                             '%Y-%m-%d %H%M')
+    try:
+        date = datetime.strptime('{} {}'.format(components[2], components[3]),
+                                 '%Y-%m-%d %H%M')
+    except ValueError as e:
+        raise InvalidQSOException(
+            'Unable to parse QSO date/time "{} {}": {}'.format(
+                components[2], components[3], e))
     return QSO(freq=components[0], mo=components[1], date=date,
                de_call=components[4],
                de_exch=components[5:int(3 + num_exchanged / 2 + 1)],
@@ -118,13 +123,23 @@ def parse_log_text(text, ignore_unknown_key=False, check_categories=True, ignore
                 value.replace(',', ' ').split())
         elif key in ['ADDRESS', 'SOAPBOX']:
             results.setdefault(inverse_keywords[key], list()).append(value)
+        elif key == 'OFFTIME':
+            parts = value.split()
+            if len(parts) == 4:
+                try:
+                    start = datetime.strptime('{} {}'.format(parts[0], parts[1]),
+                                              '%Y-%m-%d %H%M')
+                    end = datetime.strptime('{} {}'.format(parts[2], parts[3]),
+                                            '%Y-%m-%d %H%M')
+                    results[inverse_keywords[key]] = [start, end]
+                except ValueError:
+                    pass
         elif key == 'GRID-LOCATOR':
             # Uppercase the grid locator to be consistent.
             value = value.upper().strip()
 
             if not value:
-                # TODO: In a future version, make this properly return None instead.
-                results[inverse_keywords[key]] = ''
+                results[inverse_keywords[key]] = None
                 continue
 
             # A Maidenhead grid locator is 4 or 6 characters long. We only validate this
