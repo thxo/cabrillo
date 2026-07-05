@@ -84,3 +84,16 @@ def test_yarc_qso():
     assert qso.dx_call == 'W2Y'
     assert qso.dx_exch == ['19', 'NY']
     assert qso.t is None
+
+
+def test_nonstandard_mode_strict():
+    with pytest.raises(InvalidQSOException):
+        parse_qso('14000 CW/DIGITAL 2020-01-01 0000 W1AW 599 1 K3LR 599 4', True)
+
+
+def test_nonstandard_mode_lenient():
+    qso = parse_qso('14000 CW/DIGITAL 2020-01-01 0000 W1AW 599 1 K3LR 599 4',
+                    True, check_mode=False)
+    assert qso.mo == 'CW/DIGITAL'
+    assert qso.freq == '14000'
+    assert qso.de_call == 'W1AW'

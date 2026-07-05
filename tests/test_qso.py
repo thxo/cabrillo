@@ -172,6 +172,29 @@ def test_qso_match():
     assert qso1.match_against(qso2, check_band=False) is True
 
 
+def test_vhf_band_matching():
+    qso1 = QSO('144', 'PH',
+               datetime.strptime('May 30 2018 10:10PM', '%b %d %Y %I:%M%p'),
+               'KX0XXX', 'KX9XXX',
+               de_exch=['59', '10', 'CO'], dx_exch=['44', '20', 'IN'])
+    qso2 = QSO('144300', 'PH',
+               datetime.strptime('May 30 2018 10:10PM', '%b %d %Y %I:%M%p'),
+               'KX9XXX', 'KX0XXX',
+               de_exch=['44', '20', 'IN'], dx_exch=['59', '10', 'CO'])
+    # Band designator vs exact frequency on same band should match
+    assert qso1.match_against(qso2) is True
+
+    # Same test for 50 MHz (6m)
+    qso1.freq = '50'
+    qso2.freq = '50125'
+    assert qso1.match_against(qso2) is True
+
+    # Same test for 432 MHz (70cm)
+    qso1.freq = '432'
+    qso2.freq = '432100'
+    assert qso1.match_against(qso2) is True
+
+
 def test_eq_non_qso():
     qso = QSO('14313', 'PH',
               datetime.strptime('May 30 2018 10:10PM', '%b %d %Y %I:%M%p'),

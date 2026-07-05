@@ -87,14 +87,15 @@ class QSO:
     """
 
     def __init__(self, freq, mo, date, de_call, dx_call, de_exch=[],
-                 dx_exch=[], t=None, valid=True):
+                 dx_exch=[], t=None, valid=True, check_mode=True):
         """Construct a QSO object.
 
         Arguments:
             See class attributes for parameters.
             de_exch and dx_exch are optional lists.
+            check_mode: If True (default), validate mo against data.MODES.
         """
-        if mo not in data.MODES:
+        if check_mode and mo not in data.MODES:
             raise InvalidQSOException('{} is not a valid mode.'.format(mo))
 
         self.freq = freq

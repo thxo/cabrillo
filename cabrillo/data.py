@@ -11,7 +11,9 @@ import collections
 CATEGORY_ASSISTED = ['ASSISTED', 'NON-ASSISTED']
 CATEGORY_BAND = ['ALL', '160M', '80M', '40M', '20M', '15M', '10M', '6M', '4M',
                  '2M', '222', '432', '902', '1.2G', '2.3G', '3.4G', '5.7G',
-                 '10G', '24G', '47G', '75G', '122G', '123G', '134G', '241G', 'LIGHT',
+                 '10G', '24G', '47G', '75G', '122G',
+                 '123G',  # 2021-01-23: renamed to 122G, kept for old logs
+                 '134G', '241G', 'LIGHT',
                  'VHF-3-BAND', 'VHF-FM-ONLY']
 CATEGORY_MODE = ['SSB', 'CW', 'RTTY', 'FM', 'MIXED', 'DIGI']
 CATEGORY_OPERATOR = ['SINGLE-OP', 'MULTI-OP', 'CHECKLOG']
@@ -22,10 +24,13 @@ CATEGORY_STATION = ['FIXED', 'MOBILE', 'PORTABLE', 'ROVER', 'ROVER-LIMITED',
 CATEGORY_TIME = ['6-HOURS', '8-HOURS', '12-HOURS', '24-HOURS']
 CATEGORY_TRANSMITTER = ['ONE', 'TWO', 'LIMITED', 'UNLIMITED', 'SWL']
 CATEGORY_OVERLAY = [
-    'CLASSIC', 'ROOKIE', 'TB-WIRES', 'YOUTH', 'NOVICE-TECH', 'OVER-50',
-    'YL', 'YOUTH'
+    'CLASSIC', 'ROOKIE', 'TB-WIRES', 'YOUTH', 'NOVICE-TECH',
+    'OVER-50',  # Removed from spec 2023-04-10, kept for old logs
+    'YL'
 ]
 
+# NOTE: CONTEST list is not referenced by any code path or test (dead data).
+# Maintained for reference only.
 CONTEST = [
     '10-10-SPRINT',
     '10-10-FALL-CW',
@@ -86,6 +91,8 @@ CONTEST = [
     'CQ-WW-RTTY',
     'CQ-WW-SSB',
     'CQ-VHF',
+    'CQ-VHF-SSBCW',  # Split from CQ-VHF, 2025-06-05
+    'CQ-VHF-DIGI',   # Split from CQ-VHF, 2025-06-05
     'CQ-WPX-RTTY',
     'CQ-WPX-CW',
     'CQ-WPX-SSB',
@@ -371,13 +378,19 @@ VALID_CATEGORIES_MAP = dict(category_assisted=CATEGORY_ASSISTED,
 VALID_QSO_CATEGORIES = ['1800', '3500', '7000', '14000', '21000', '28000',
                         '50', '70', '144', '222', '432', '902', '1.2G', '2.3G',
                         '3.4G', '5.7G', '10G', '24G', '47G', '75G', '122G',
-                        '123G', '134G', '241G', 'LIGHT']
+                        '134G', '241G', 'LIGHT']  # Dead data: never referenced by code
 FREQ_RANGES = {'1800': (1800, 2000),
                '3500': (3500, 4000),
                '7000': (7000, 7300),
                '14000': (14000, 14350),
                '21000': (21000, 21450),
-               '28000': (28000, 29700)}
+               '28000': (28000, 29700),
+               '50': (50000, 54000),
+               '70': (70000, 71000),
+               '144': (144000, 148000),
+               '222': (222000, 225000),
+               '432': (420000, 450000),
+               '902': (902000, 928000)}
 
 FREQ_RANGES_BAND = {
                '160': (1800, 2000),
